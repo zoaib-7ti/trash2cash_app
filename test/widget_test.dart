@@ -1,30 +1,86 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 
 import 'package:trash2cash_app/main.dart';
+import 'package:trash2cash_app/core/network/api_client.dart';
+import 'package:trash2cash_app/core/routing/route_guard.dart';
+import 'package:trash2cash_app/core/storage/secure_storage_service.dart';
+import 'package:trash2cash_app/core/constants/api_constants.dart';
+import 'package:trash2cash_app/data/models/user_model.dart';
+import 'package:trash2cash_app/features/auth/state/auth_state.dart';
+
+class _FakeSecureStorageService extends SecureStorageService {
+  String? _accessToken;
+  String? _refreshToken;
+
+  @override
+  Future<void> saveTokens(String accessToken, String refreshToken) async {
+    _accessToken = accessToken;
+    _refreshToken = refreshToken;
+  }
+
+  @override
+  Future<String?> getAccessToken() async => _accessToken;
+
+  @override
+  Future<String?> getRefreshToken() async => _refreshToken;
+
+  @override
+  Future<void> clearTokens() async {
+    _accessToken = null;
+    _refreshToken = null;
+  }
+
+  @override
+  Future<void> saveUserRole(UserRole role) async {}
+
+  @override
+  Future<UserRole?> getUserRole() async => null;
+
+  @override
+  Future<void> clearAll() async {
+    await clearTokens();
+  }
+}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('app builds and lands on login route', (
+    WidgetTester tester,
+  ) async {
+    final secureStorageService = _FakeSecureStorageService();
+    final apiClient = ApiClient(
+      secureStorageService: secureStorageService,
+      apiBaseUrl: ApiConstants.apiBaseUrl,
+    );
+    final routeGuard = RouteGuard(
+      secureStorageService: secureStorageService,
+      apiClient: apiClient,
+    );
+    final authState = AuthState(
+      apiClient: apiClient,
+      secureStorageService: secureStorageService,
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    addTearDown(() async {
+      await apiClient.dispose();
+    });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          Provider<SecureStorageService>.value(value: secureStorageService),
+          Provider<ApiClient>.value(value: apiClient),
+          Provider<RouteGuard>.value(value: routeGuard),
+          ChangeNotifierProvider<AuthState>.value(value: authState),
+        ],
+        child: const Trash2CashApp(),
+      ),
+    );
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(TextFormField), findsNWidgets(2));
+    expect(find.widgetWithText(FilledButton, 'Sign In'), findsOneWidget);
   });
 }

@@ -6,37 +6,46 @@ import 'core/network/api_client.dart';
 import 'core/routing/app_router.dart';
 import 'core/routing/route_guard.dart';
 import 'core/storage/secure_storage_service.dart';
+import 'features/auth/state/auth_state.dart';
 
 void main() {
-	WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
 
-	final secureStorageService = SecureStorageService();
-	final apiClient = ApiClient(
-		secureStorageService: secureStorageService,
-		apiBaseUrl: ApiConstants.apiBaseUrl,
-	);
-	final routeGuard = RouteGuard(
-		secureStorageService: secureStorageService,
-		apiClient: apiClient,
-	);
+  final secureStorageService = SecureStorageService();
 
-	runApp(
-		MultiProvider(
-			providers: [
-				Provider<SecureStorageService>.value(value: secureStorageService),
-				Provider<ApiClient>.value(value: apiClient),
-				Provider<RouteGuard>.value(value: routeGuard),
-			],
-			child: const Trash2CashApp(),
-		),
-	);
+  final apiClient = ApiClient(
+    secureStorageService: secureStorageService,
+    apiBaseUrl: ApiConstants.apiBaseUrl,
+  );
+
+  final authState = AuthState(
+    apiClient: apiClient,
+    secureStorageService: secureStorageService,
+  );
+
+  final routeGuard = RouteGuard(
+    secureStorageService: secureStorageService,
+    apiClient: apiClient,
+  );
+
+  runApp(
+    MultiProvider(
+      providers: [
+        Provider<SecureStorageService>.value(value: secureStorageService),
+        Provider<ApiClient>.value(value: apiClient),
+        Provider<RouteGuard>.value(value: routeGuard),
+        ChangeNotifierProvider<AuthState>.value(value: authState),
+      ],
+      child: const Trash2CashApp(),
+    ),
+  );
 }
 
 class Trash2CashApp extends StatelessWidget {
-	const Trash2CashApp({super.key});
+  const Trash2CashApp({super.key});
 
-	@override
-	Widget build(BuildContext context) {
-		return const AppRouter();
-	}
+  @override
+  Widget build(BuildContext context) {
+    return const AppRouter();
+  }
 }

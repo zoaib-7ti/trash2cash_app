@@ -26,8 +26,8 @@ class RouteGuard {
   RouteGuard({
     required SecureStorageService secureStorageService,
     required ApiClient apiClient,
-  })  : _secureStorageService = secureStorageService,
-        _apiClient = apiClient;
+  }) : _secureStorageService = secureStorageService,
+       _apiClient = apiClient;
 
   final SecureStorageService _secureStorageService;
   final ApiClient _apiClient;
@@ -72,11 +72,8 @@ class RouteGuard {
     };
   }
 
+  // Keep this as a straight role match unless an admin module adds a real bypass path.
   bool canAccessRole(UserRole currentRole, UserRole requiredRole) {
-    if (currentRole == UserRole.admin) {
-      return true;
-    }
-
     return currentRole == requiredRole;
   }
 

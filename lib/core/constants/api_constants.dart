@@ -10,10 +10,10 @@ class ApiConstants {
   static const String androidEmulatorHost = 'http://10.0.2.2';
 
   // TODO: set this to your machine's LAN IP before testing on a physical device or iOS simulator.
-  static const String lanHost = 'http://YOUR_LAN_IP_HERE';
+  static const String lanHost = 'http://192.168.1.14';
 
   // TODO: set false when running on a physical Android device so the app uses the LAN host.
-  static const bool preferAndroidEmulatorHost = true;
+  static const bool preferAndroidEmulatorHost = false;
 
   static String get host {
     final shouldUseAndroidEmulatorHost =
