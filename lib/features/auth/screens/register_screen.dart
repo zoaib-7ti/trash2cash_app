@@ -73,7 +73,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
+                      color: Colors.black.withValues(alpha: 0.3),
                       blurRadius: 24,
                       offset: const Offset(0, 10),
                     ),
@@ -151,7 +151,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           AppTextField(
                             controller: _nameController,
                             label: 'FULL NAME',
-                            hintText: 'John Doe',
+                            hintText: 'your Name',
                             prefixIcon: Icons.person_outline,
                             textInputAction: TextInputAction.next,
                             errorText: authState.fieldErrorFor(
@@ -176,7 +176,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           AppTextField(
                             controller: _phoneController,
                             label: 'PHONE NUMBER',
-                            hintText: '03001234567',
+                            hintText: '03164305190',
                             prefixIcon: Icons.phone_outlined,
                             textInputAction: TextInputAction.next,
                             keyboardType: TextInputType.phone,
@@ -214,11 +214,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           ),
                           const SizedBox(height: 6),
-                          Text(
-                            'Must include uppercase, lowercase, a number, and be at least 8 characters.',
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(color: const Color(0xFF6B7280)),
-                          ),
+                          // Text(
+                          //   'Must include uppercase, lowercase, a number, and be at least 8 characters.',
+                          //   style: Theme.of(context).textTheme.bodySmall
+                          //       ?.copyWith(color: const Color(0xFF6B7280)),
+                          // ),
                           if (_selectedRole == UserRole.collector) ...[
                             const SizedBox(height: 14),
                             AppTextField(
