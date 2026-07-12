@@ -136,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       message: loginState.errorMessage!,
                       onRetry: _submit,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 18),
                   ],
                   Container(
                     padding: const EdgeInsets.all(16),
@@ -162,7 +162,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               'email',
                             ),
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 18),
                           AppTextField(
                             controller: _passwordController,
                             label: 'PASSWORD',

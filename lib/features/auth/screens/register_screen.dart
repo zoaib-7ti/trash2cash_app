@@ -146,7 +146,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           AppTextField(
                             controller: _nameController,
                             label: 'FULL NAME',
-                            hintText: 'John Doe',
+                            hintText: 'Zohaib Ahmed',
                             prefixIcon: Icons.person_outline,
                             textInputAction: TextInputAction.next,
                             errorText: authState.fieldErrorFor(
@@ -154,7 +154,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               'name',
                             ),
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 16),
                           AppTextField(
                             controller: _emailController,
                             label: 'EMAIL ADDRESS',
@@ -167,7 +167,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               'email',
                             ),
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 16),
                           AppTextField(
                             controller: _phoneController,
                             label: 'PHONE NUMBER',
@@ -180,7 +180,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               'phone',
                             ),
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 16),
                           AppTextField(
                             controller: _passwordController,
                             label: 'PASSWORD',
@@ -209,12 +209,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           ),
                           const SizedBox(height: 6),
-                          Text(
-                            'Must include uppercase, lowercase, a number, and be at least 8 characters.',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: const Color(0xFF6B7280),
-                            ),
-                          ),
+                          // Text(
+                          //   ' include uppercase, lowercase, a number, and be at least 8 characters.',
+                          //   style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          //     color: const Color(0xFF6B7280),
+                          //   ),
+                          // ),
                           if (_selectedRole == UserRole.collector) ...[
                             const SizedBox(height: 14),
                             AppTextField(
@@ -228,7 +228,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 'cnicNumber',
                               ),
                             ),
-                            const SizedBox(height: 14),
+                            const SizedBox(height: 16),
                             AppTextField(
                               controller: _vehicleTypeController,
                               label: 'VEHICLE TYPE',
