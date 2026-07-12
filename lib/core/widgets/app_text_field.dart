@@ -15,6 +15,7 @@ class AppTextField extends StatelessWidget {
     this.onFieldSubmitted,
     this.errorText,
     this.suffixIcon,
+    this.suffixText,
   });
 
   final TextEditingController controller;
@@ -27,6 +28,7 @@ class AppTextField extends StatelessWidget {
   final ValueChanged<String>? onFieldSubmitted;
   final String? errorText;
   final Widget? suffixIcon;
+  final String? suffixText;
 
   @override
   Widget build(BuildContext context) {
@@ -59,9 +61,16 @@ class AppTextField extends StatelessWidget {
           vertical: 12,
         ),
         prefixIcon: Icon(prefixIcon, color: const Color(0xFF6B7280), size: 20),
-        prefixIconConstraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+        prefixIconConstraints: const BoxConstraints(
+          minWidth: 44,
+          minHeight: 44,
+        ),
         suffixIcon: suffixIcon,
-        suffixIconConstraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+        suffixText: suffixText,
+        suffixIconConstraints: const BoxConstraints(
+          minWidth: 44,
+          minHeight: 44,
+        ),
         errorText: errorText,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -73,10 +82,7 @@ class AppTextField extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: tokens.primaryColor,
-            width: 1.4,
-          ),
+          borderSide: BorderSide(color: tokens.primaryColor, width: 1.4),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -99,10 +105,10 @@ class AppTextField extends StatelessWidget {
         Text(
           label!,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                letterSpacing: 1.2,
-                color: const Color(0xFF111827),
-                fontWeight: FontWeight.w800,
-              ),
+            letterSpacing: 1.2,
+            color: const Color(0xFF111827),
+            fontWeight: FontWeight.w800,
+          ),
         ),
         const SizedBox(height: 6),
         field,

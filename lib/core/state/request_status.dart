@@ -8,12 +8,14 @@ class RequestState<T> {
     this.data,
     this.errorMessage,
     this.fieldErrors,
+    this.statusCode,
   });
 
   final RequestStatus status;
   final T? data;
   final String? errorMessage;
   final List<ApiFieldError>? fieldErrors;
+  final int? statusCode;
 
   bool get isLoading => status == RequestStatus.loading;
 
@@ -22,6 +24,7 @@ class RequestState<T> {
     Object? data = _unset,
     Object? errorMessage = _unset,
     Object? fieldErrors = _unset,
+    Object? statusCode = _unset,
   }) {
     return RequestState<T>(
       status: status ?? this.status,
@@ -32,6 +35,9 @@ class RequestState<T> {
       fieldErrors: identical(fieldErrors, _unset)
           ? this.fieldErrors
           : fieldErrors as List<ApiFieldError>?,
+      statusCode: identical(statusCode, _unset)
+          ? this.statusCode
+          : statusCode as int?,
     );
   }
 }

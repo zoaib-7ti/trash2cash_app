@@ -1,8 +1,11 @@
+import 'dart:io';
 import 'dart:async';
 
 import 'package:dio/dio.dart';
 
 import '../../data/models/user_model.dart';
+import '../../data/models/pickup_request_model.dart';
+import '../../data/models/paginated_response_model.dart';
 import '../constants/api_constants.dart';
 import '../storage/secure_storage_service.dart';
 import 'api_exception.dart';
@@ -11,28 +14,21 @@ class ApiClient {
   ApiClient({
     required SecureStorageService secureStorageService,
     required String apiBaseUrl,
-  })  : _secureStorageService = secureStorageService,
-        _dio = Dio(
-          BaseOptions(
-            baseUrl: apiBaseUrl,
-            headers: const <String, dynamic>{
-              'Content-Type': 'application/json',
-            },
-          ),
-        ),
-        _refreshDio = Dio(
-          BaseOptions(
-            baseUrl: apiBaseUrl,
-            headers: const <String, dynamic>{
-              'Content-Type': 'application/json',
-            },
-          ),
-        ) {
+  }) : _secureStorageService = secureStorageService,
+       _dio = Dio(
+         BaseOptions(
+           baseUrl: apiBaseUrl,
+           headers: const <String, dynamic>{'Content-Type': 'application/json'},
+         ),
+       ),
+       _refreshDio = Dio(
+         BaseOptions(
+           baseUrl: apiBaseUrl,
+           headers: const <String, dynamic>{'Content-Type': 'application/json'},
+         ),
+       ) {
     _dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: _onRequest,
-        onError: _onError,
-      ),
+      InterceptorsWrapper(onRequest: _onRequest, onError: _onError),
     );
   }
 
@@ -41,7 +37,8 @@ class ApiClient {
   final SecureStorageService _secureStorageService;
   final Dio _dio;
   final Dio _refreshDio;
-  final StreamController<void> _sessionExpiredController = StreamController<void>.broadcast();
+  final StreamController<void> _sessionExpiredController =
+      StreamController<void>.broadcast();
   Completer<void>? _refreshCompleter;
 
   Stream<void> get sessionExpiredStream => _sessionExpiredController.stream;
@@ -195,15 +192,21 @@ class ApiClient {
       if (userValue is Map<String, dynamic>) {
         userJson = userValue;
       } else if (userValue is Map) {
-        userJson = userValue.map((key, value) => MapEntry(key.toString(), value));
+        userJson = userValue.map(
+          (key, value) => MapEntry(key.toString(), value),
+        );
       }
     } else if (dataSection is Map) {
-      final normalizedData = dataSection.map((key, value) => MapEntry(key.toString(), value));
+      final normalizedData = dataSection.map(
+        (key, value) => MapEntry(key.toString(), value),
+      );
       final userValue = normalizedData['user'];
       if (userValue is Map<String, dynamic>) {
         userJson = userValue;
       } else if (userValue is Map) {
-        userJson = userValue.map((key, value) => MapEntry(key.toString(), value));
+        userJson = userValue.map(
+          (key, value) => MapEntry(key.toString(), value),
+        );
       }
     }
 
@@ -217,13 +220,217 @@ class ApiClient {
     return UserModel.fromJson(userJson);
   }
 
+  Future<PickupRequestModel> createPickup({
+    required File imageFile,
+    required String pickupAddress,
+    required double pickupLat,
+    required double pickupLng,
+    String? scheduledTimeIso,
+    String? materialType,
+    double? estimatedWeight,
+  }) async {
+    final formData = FormData.fromMap(<String, dynamic>{
+      'image': MultipartFile.fromFileSync(imageFile.path),
+      'pickupAddress': pickupAddress,
+      'pickupLat': pickupLat,
+      'pickupLng': pickupLng,
+    });
+
+    if (scheduledTimeIso != null && scheduledTimeIso.isNotEmpty) {
+      formData.fields.add(MapEntry('scheduledTime', scheduledTimeIso));
+    }
+    if (materialType != null && materialType.isNotEmpty) {
+      formData.fields.add(MapEntry('materialType', materialType));
+    }
+    if (estimatedWeight != null) {
+      formData.fields.add(
+        MapEntry('estimatedWeight', estimatedWeight.toString()),
+      );
+    }
+
+    final response = await post<Map<String, dynamic>>(
+      ApiConstants.pickupsPath,
+      data: formData,
+      options: Options(contentType: 'multipart/form-data'),
+    );
+
+    final responseData = response.data ?? <String, dynamic>{};
+    final dataSection = responseData['data'];
+    Map<String, dynamic>? pickupJson;
+
+    if (dataSection is Map<String, dynamic>) {
+      final pickupValue = dataSection['pickup'];
+      if (pickupValue is Map<String, dynamic>) {
+        pickupJson = pickupValue;
+      } else if (pickupValue is Map) {
+        pickupJson = pickupValue.map(
+          (key, value) => MapEntry(key.toString(), value),
+        );
+      }
+    } else if (dataSection is Map) {
+      final normalizedData = dataSection.map(
+        (key, value) => MapEntry(key.toString(), value),
+      );
+      final pickupValue = normalizedData['pickup'];
+      if (pickupValue is Map<String, dynamic>) {
+        pickupJson = pickupValue;
+      } else if (pickupValue is Map) {
+        pickupJson = pickupValue.map(
+          (key, value) => MapEntry(key.toString(), value),
+        );
+      }
+    }
+
+    if (pickupJson == null) {
+      throw ApiException.fromMessage(
+        statusCode: response.statusCode,
+        message: 'Create pickup response was missing the pickup payload',
+      );
+    }
+
+    return PickupRequestModel.fromJson(pickupJson);
+  }
+
+  Future<PaginatedResponseModel<PickupRequestModel>> getMyPickups({
+    String? status,
+    int page = 1,
+    int limit = 10,
+  }) async {
+    final queryParameters = <String, dynamic>{'page': page, 'limit': limit};
+    if (status != null && status.isNotEmpty) {
+      queryParameters['status'] = status;
+    }
+
+    final response = await get<Map<String, dynamic>>(
+      ApiConstants.pickupsPath,
+      queryParameters: queryParameters,
+    );
+    final responseData = response.data ?? <String, dynamic>{};
+
+    final dataSection = responseData['data'];
+    Map<String, dynamic>? normalizedData;
+    if (dataSection is Map<String, dynamic>) {
+      normalizedData = dataSection;
+    } else if (dataSection is Map) {
+      normalizedData = dataSection.map(
+        (key, value) => MapEntry(key.toString(), value),
+      );
+    }
+
+    if (normalizedData == null) {
+      throw ApiException.fromMessage(
+        statusCode: response.statusCode,
+        message: 'Get pickups response was missing data payload',
+      );
+    }
+
+    return PaginatedResponseModel.fromJson(
+      normalizedData,
+      (json) => PickupRequestModel.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  Future<PickupRequestModel> getPickupById(String id) async {
+    final response = await get<Map<String, dynamic>>(
+      ApiConstants.pickupByIdPath(id),
+    );
+    final responseData = response.data ?? <String, dynamic>{};
+    final dataSection = responseData['data'];
+
+    Map<String, dynamic>? pickupJson;
+    if (dataSection is Map<String, dynamic>) {
+      final pickupValue = dataSection['pickup'];
+      if (pickupValue is Map<String, dynamic>) {
+        pickupJson = pickupValue;
+      } else if (pickupValue is Map) {
+        pickupJson = pickupValue.map(
+          (key, value) => MapEntry(key.toString(), value),
+        );
+      }
+    } else if (dataSection is Map) {
+      final normalizedData = dataSection.map(
+        (key, value) => MapEntry(key.toString(), value),
+      );
+      final pickupValue = normalizedData['pickup'];
+      if (pickupValue is Map<String, dynamic>) {
+        pickupJson = pickupValue;
+      } else if (pickupValue is Map) {
+        pickupJson = pickupValue.map(
+          (key, value) => MapEntry(key.toString(), value),
+        );
+      }
+    }
+
+    if (pickupJson == null) {
+      throw ApiException.fromMessage(
+        statusCode: response.statusCode,
+        message: 'Get pickup response was missing the pickup payload',
+      );
+    }
+
+    return PickupRequestModel.fromJson(pickupJson);
+  }
+
+  Future<PickupRequestModel> updatePickup(
+    String id,
+    Map<String, dynamic> changes,
+  ) async {
+    final response = await put<Map<String, dynamic>>(
+      ApiConstants.pickupByIdPath(id),
+      data: changes,
+    );
+
+    final responseData = response.data ?? <String, dynamic>{};
+    final dataSection = responseData['data'];
+
+    Map<String, dynamic>? pickupJson;
+    if (dataSection is Map<String, dynamic>) {
+      final pickupValue = dataSection['pickup'];
+      if (pickupValue is Map<String, dynamic>) {
+        pickupJson = pickupValue;
+      } else if (pickupValue is Map) {
+        pickupJson = pickupValue.map(
+          (key, value) => MapEntry(key.toString(), value),
+        );
+      }
+    } else if (dataSection is Map) {
+      final normalizedData = dataSection.map(
+        (key, value) => MapEntry(key.toString(), value),
+      );
+      final pickupValue = normalizedData['pickup'];
+      if (pickupValue is Map<String, dynamic>) {
+        pickupJson = pickupValue;
+      } else if (pickupValue is Map) {
+        pickupJson = pickupValue.map(
+          (key, value) => MapEntry(key.toString(), value),
+        );
+      }
+    }
+
+    if (pickupJson == null) {
+      throw ApiException.fromMessage(
+        statusCode: response.statusCode,
+        message: 'Update pickup response was missing the pickup payload',
+      );
+    }
+
+    return PickupRequestModel.fromJson(pickupJson);
+  }
+
+  Future<void> cancelPickup(String id) async {
+    await delete(ApiConstants.pickupByIdPath(id));
+  }
+
   Future<void> dispose() async {
     await _sessionExpiredController.close();
     _dio.close();
     _refreshDio.close();
   }
 
-  Future<void> _onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+  Future<void> _onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     if (_shouldSkipAuthHeader(options.path, options.extra)) {
       handler.next(options);
       return;
@@ -237,7 +444,10 @@ class ApiClient {
     handler.next(options);
   }
 
-  Future<void> _onError(DioException error, ErrorInterceptorHandler handler) async {
+  Future<void> _onError(
+    DioException error,
+    ErrorInterceptorHandler handler,
+  ) async {
     final response = error.response;
     final statusCode = response?.statusCode;
     final requestOptions = error.requestOptions;
@@ -252,9 +462,12 @@ class ApiClient {
       return;
     }
 
-    if (_isRefreshPath(requestOptions.path) || requestOptions.extra[_retryMarker] == true) {
+    if (_isRefreshPath(requestOptions.path) ||
+        requestOptions.extra[_retryMarker] == true) {
       await _forceSessionLogout();
-      handler.reject(_wrapAsDioException(error, const SessionExpiredException()));
+      handler.reject(
+        _wrapAsDioException(error, const SessionExpiredException()),
+      );
       return;
     }
 
@@ -269,7 +482,9 @@ class ApiClient {
     }
   }
 
-  Future<Response<dynamic>> _retryWithFreshToken(RequestOptions requestOptions) async {
+  Future<Response<dynamic>> _retryWithFreshToken(
+    RequestOptions requestOptions,
+  ) async {
     final accessToken = await _secureStorageService.getAccessToken();
     if (accessToken == null || accessToken.isEmpty) {
       throw const SessionExpiredException();
@@ -285,10 +500,7 @@ class ApiClient {
       options: Options(
         method: requestOptions.method,
         headers: retryHeaders,
-        extra: <String, dynamic>{
-          ...requestOptions.extra,
-          _retryMarker: true,
-        },
+        extra: <String, dynamic>{...requestOptions.extra, _retryMarker: true},
       ),
       cancelToken: requestOptions.cancelToken,
       onReceiveProgress: requestOptions.onReceiveProgress,
@@ -325,10 +537,15 @@ class ApiClient {
           );
         }
 
-        final tokenMap = tokenData.map((key, value) => MapEntry(key.toString(), value));
+        final tokenMap = tokenData.map(
+          (key, value) => MapEntry(key.toString(), value),
+        );
         final accessToken = tokenMap['accessToken']?.toString();
         final newRefreshToken = tokenMap['refreshToken']?.toString();
-        if (accessToken == null || accessToken.isEmpty || newRefreshToken == null || newRefreshToken.isEmpty) {
+        if (accessToken == null ||
+            accessToken.isEmpty ||
+            newRefreshToken == null ||
+            newRefreshToken.isEmpty) {
           throw ApiException.fromMessage(
             statusCode: response.statusCode,
             message: 'Refresh response did not include new tokens',
@@ -359,10 +576,7 @@ class ApiClient {
         completer.completeError(apiException);
       } catch (error) {
         completer.completeError(
-          ApiException.fromMessage(
-            statusCode: null,
-            message: error.toString(),
-          ),
+          ApiException.fromMessage(statusCode: null, message: error.toString()),
         );
       } finally {
         _refreshCompleter = null;
@@ -393,7 +607,10 @@ class ApiClient {
     );
   }
 
-  DioException _wrapAsDioException(DioException original, ApiException apiException) {
+  DioException _wrapAsDioException(
+    DioException original,
+    ApiException apiException,
+  ) {
     return DioException(
       requestOptions: original.requestOptions,
       response: original.response,
@@ -412,7 +629,8 @@ class ApiClient {
   }
 
   bool _isAuthPublicPath(String path) {
-    return path == ApiConstants.authLoginPath || path == ApiConstants.authRegisterPath;
+    return path == ApiConstants.authLoginPath ||
+        path == ApiConstants.authRegisterPath;
   }
 
   bool _isRefreshPath(String path) {

@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'collector_summary_model.dart';
+
 enum PickupStatus { pending, accepted, inProgress, completed, cancelled }
 
 enum PickupMaterialType { plastic, metal, glass, paper, cardboard, electronic }
@@ -74,6 +77,42 @@ extension PickupMaterialTypeJson on PickupMaterialType {
   }
 }
 
+extension PickupMaterialTypeUi on PickupMaterialType {
+  String get label {
+    switch (this) {
+      case PickupMaterialType.plastic:
+        return 'Plastic';
+      case PickupMaterialType.metal:
+        return 'Metal';
+      case PickupMaterialType.glass:
+        return 'Glass';
+      case PickupMaterialType.paper:
+        return 'Paper';
+      case PickupMaterialType.cardboard:
+        return 'Cardboard';
+      case PickupMaterialType.electronic:
+        return 'Electronic';
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case PickupMaterialType.plastic:
+        return Icons.local_drink_outlined;
+      case PickupMaterialType.metal:
+        return Icons.build_outlined;
+      case PickupMaterialType.glass:
+        return Icons.wine_bar_outlined;
+      case PickupMaterialType.paper:
+        return Icons.description_outlined;
+      case PickupMaterialType.cardboard:
+        return Icons.inventory_2_outlined;
+      case PickupMaterialType.electronic:
+        return Icons.devices_outlined;
+    }
+  }
+}
+
 class PickupRequestModel {
   const PickupRequestModel({
     required this.id,
@@ -89,6 +128,7 @@ class PickupRequestModel {
     required this.scheduledTime,
     required this.createdAt,
     required this.updatedAt,
+    this.collector,
   });
 
   final String id;
@@ -104,8 +144,20 @@ class PickupRequestModel {
   final DateTime? scheduledTime;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final CollectorSummaryModel? collector;
 
   factory PickupRequestModel.fromJson(Map<String, dynamic> json) {
+    final collectorJson = json['collector'];
+    CollectorSummaryModel? collector;
+    if (collectorJson is Map<String, dynamic>) {
+      try {
+        collector = CollectorSummaryModel.fromJson(collectorJson);
+      } catch (_) {
+        collector = null;
+      }
+    } else {
+      collector = null;
+    }
     return PickupRequestModel(
       id: json['id']?.toString() ?? '',
       citizenId: json['citizenId']?.toString() ?? '',
@@ -122,6 +174,7 @@ class PickupRequestModel {
       scheduledTime: _toNullableDateTime(json['scheduledTime']),
       createdAt: DateTime.parse(json['createdAt']?.toString() ?? ''),
       updatedAt: DateTime.parse(json['updatedAt']?.toString() ?? ''),
+      collector: collector,
     );
   }
 
