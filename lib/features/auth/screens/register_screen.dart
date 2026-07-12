@@ -49,96 +49,101 @@ class _RegisterScreenState extends State<RegisterScreen> {
         return Scaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
-            title: const Text('Create Account'),
+            title: Text(
+              'Create Account',
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
             centerTitle: false,
             backgroundColor: Colors.white,
             surfaceTintColor: Colors.white,
-            elevation: 0,
+            elevation: 1,
+            shadowColor: Colors.black.withValues(alpha: 0.08),
             scrolledUnderElevation: 0,
             automaticallyImplyLeading: true,
-            actions: [
-              IconButton(onPressed: null, icon: const Icon(Icons.more_vert)),
-            ],
-            bottom: const PreferredSize(
-              preferredSize: Size.fromHeight(1),
-              child: Divider(height: 1),
-            ),
           ),
           body: SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'Join the Community',
-                    style: Theme.of(context).textTheme.headlineSmall
-                        ?.copyWith(
-                          color: const Color(0xFF111827),
-                          fontWeight: FontWeight.w800,
-                        ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Select how you want to use Trash 2 Cash',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: const Color(0xFF6B7280),
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.06),
+                      blurRadius: 24,
+                      offset: const Offset(0, 10),
                     ),
-                  ),
-                  const SizedBox(height: 18),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _RoleCard(
-                          title: 'Household',
-                          description: 'Request pickups for your recyclables',
-                          icon: Icons.person_outline,
-                          selected: _selectedRole == UserRole.citizen,
-                          onTap: isLoading
-                              ? null
-                              : () {
-                                  setState(() {
-                                    _selectedRole = UserRole.citizen;
-                                  });
-                                },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _RoleCard(
-                          title: 'Collector',
-                          description: 'Pick up waste and earn rewards',
-                          icon: Icons.local_shipping_outlined,
-                          selected: _selectedRole == UserRole.collector,
-                          onTap: isLoading
-                              ? null
-                              : () {
-                                  setState(() {
-                                    _selectedRole = UserRole.collector;
-                                  });
-                                },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 18),
-                  if (registerState.errorMessage != null &&
-                      (registerState.fieldErrors == null ||
-                          registerState.fieldErrors!.isEmpty)) ...[
-                    ErrorBanner(
-                      message: registerState.errorMessage!,
-                      onRetry: _submit,
-                    ),
-                    const SizedBox(height: 16),
                   ],
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Join the Community',
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
+                            color: const Color(0xFF111827),
+                            fontWeight: FontWeight.w800,
+                          ),
                     ),
-                    child: Form(
+                    const SizedBox(height: 4),
+                    Text(
+                      'Select how you want to use Trash 2 Cash',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: const Color(0xFF6B7280),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _RoleCard(
+                            title: 'Household',
+                            description: 'Request pickups for your recyclables',
+                            icon: Icons.person_outline,
+                            selected: _selectedRole == UserRole.citizen,
+                            onTap: isLoading
+                                ? null
+                                : () {
+                                    setState(() {
+                                      _selectedRole = UserRole.citizen;
+                                    });
+                                  },
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _RoleCard(
+                            title: 'Collector',
+                            description: 'Pick up waste and earn rewards',
+                            icon: Icons.local_shipping_outlined,
+                            selected: _selectedRole == UserRole.collector,
+                            onTap: isLoading
+                                ? null
+                                : () {
+                                    setState(() {
+                                      _selectedRole = UserRole.collector;
+                                    });
+                                  },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    if (registerState.errorMessage != null &&
+                        (registerState.fieldErrors == null ||
+                            registerState.fieldErrors!.isEmpty)) ...[
+                      ErrorBanner(
+                        message: registerState.errorMessage!,
+                        onRetry: _submit,
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    Form(
                       key: _formKey,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -146,7 +151,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           AppTextField(
                             controller: _nameController,
                             label: 'FULL NAME',
-                            hintText: 'Zohaib Ahmed',
+                            hintText: 'John Doe',
                             prefixIcon: Icons.person_outline,
                             textInputAction: TextInputAction.next,
                             errorText: authState.fieldErrorFor(
@@ -154,7 +159,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               'name',
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 14),
                           AppTextField(
                             controller: _emailController,
                             label: 'EMAIL ADDRESS',
@@ -167,7 +172,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               'email',
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 14),
                           AppTextField(
                             controller: _phoneController,
                             label: 'PHONE NUMBER',
@@ -180,7 +185,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               'phone',
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 14),
                           AppTextField(
                             controller: _passwordController,
                             label: 'PASSWORD',
@@ -209,12 +214,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           ),
                           const SizedBox(height: 6),
-                          // Text(
-                          //   ' include uppercase, lowercase, a number, and be at least 8 characters.',
-                          //   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          //     color: const Color(0xFF6B7280),
-                          //   ),
-                          // ),
+                          Text(
+                            'Must include uppercase, lowercase, a number, and be at least 8 characters.',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: const Color(0xFF6B7280)),
+                          ),
                           if (_selectedRole == UserRole.collector) ...[
                             const SizedBox(height: 14),
                             AppTextField(
@@ -228,7 +232,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 'cnicNumber',
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 14),
                             AppTextField(
                               controller: _vehicleTypeController,
                               label: 'VEHICLE TYPE',
@@ -248,42 +252,49 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             isLoading: isLoading,
                             onPressed: isLoading ? null : _submit,
                           ),
+                          const SizedBox(height: 14),
+                          Center(
+                            child: Wrap(
+                              alignment: WrapAlignment.center,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                Text(
+                                  'Already have an account? ',
+                                  style: Theme.of(context).textTheme.bodyMedium
+                                      ?.copyWith(
+                                        color: const Color(0xFF6B7280),
+                                      ),
+                                ),
+                                TextButton(
+                                  onPressed: isLoading
+                                      ? null
+                                      : () {
+                                          Navigator.of(
+                                            context,
+                                          ).pushNamed('/login');
+                                        },
+                                  style: TextButton.styleFrom(
+                                    padding: EdgeInsets.zero,
+                                    minimumSize: Size.zero,
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                    foregroundColor: tokens.primaryColor,
+                                  ),
+                                  child: const Text(
+                                    'Log in',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 14),
-                  Center(
-                    child: Wrap(
-                      alignment: WrapAlignment.center,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        Text(
-                          'Already have an account? ',
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(color: const Color(0xFF6B7280)),
-                        ),
-                        TextButton(
-                          onPressed: isLoading
-                              ? null
-                              : () {
-                                  Navigator.of(context).pushNamed('/login');
-                                },
-                          style: TextButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            foregroundColor: tokens.primaryColor,
-                          ),
-                          child: const Text(
-                            'Log in',
-                            style: TextStyle(fontWeight: FontWeight.w800),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -409,7 +420,7 @@ class _RoleCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(18),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.fromLTRB(14, 16, 14, 16),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(18),
@@ -427,13 +438,13 @@ class _RoleCard extends StatelessWidget {
         child: Column(
           children: [
             Container(
-              width: 48,
-              height: 48,
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
                 color: iconCircleColor,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: iconColor, size: 24),
+              child: Icon(icon, color: iconColor, size: 20),
             ),
             const SizedBox(height: 12),
             Text(

@@ -62,177 +62,185 @@ class _LoginScreenState extends State<LoginScreen> {
         return Scaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
-            title: const Text('Log in'),
+            title: Text(
+              'Log in',
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
             centerTitle: false,
             backgroundColor: Colors.white,
             surfaceTintColor: Colors.white,
-            elevation: 0,
+            elevation: 1,
+            shadowColor: Colors.black.withValues(alpha: 0.08),
             scrolledUnderElevation: 0,
             automaticallyImplyLeading: true,
-            actions: const [
-              Padding(
-                padding: EdgeInsets.only(right: 4),
-                child: Icon(Icons.more_vert),
-              ),
-            ],
-            bottom: const PreferredSize(
-              preferredSize: Size.fromHeight(1),
-              child: Divider(height: 1),
-            ),
           ),
           body: SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(22, 28, 22, 24),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF6FBF7),
-                      borderRadius: BorderRadius.circular(22),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.06),
-                          blurRadius: 24,
-                          offset: const Offset(0, 12),
-                        ),
-                      ],
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.06),
+                      blurRadius: 24,
+                      offset: const Offset(0, 10),
                     ),
-                    child: Column(
-                      children: [
-                        Container(
-                          width: 58,
-                          height: 58,
-                          decoration: BoxDecoration(
-                            color: tokens.primaryColor,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: const Icon(
-                            Icons.bolt,
-                            size: 30,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Turn your recycling into rewards.\nSign in to continue.',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(
-                                color: const Color(0xFF4B5563),
-                                height: 1.35,
-                                fontWeight: FontWeight.w500,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  if (loginState.errorMessage != null &&
-                      (loginState.fieldErrors == null ||
-                          loginState.fieldErrors!.isEmpty)) ...[
-                    ErrorBanner(
-                      message: loginState.errorMessage!,
-                      onRetry: _submit,
-                    ),
-                    const SizedBox(height: 18),
                   ],
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFE5E7EB)),
-                    ),
-                    child: Form(
-                      key: _formKey,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.fromLTRB(22, 28, 22, 24),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFEDFDF2),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(24),
+                          topRight: Radius.circular(24),
+                        ),
+                      ),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          AppTextField(
-                            controller: _emailController,
-                            label: 'EMAIL ADDRESS',
-                            keyboardType: TextInputType.emailAddress,
-                            textInputAction: TextInputAction.next,
-                            hintText: 'user@trash2cash.com',
-                            prefixIcon: Icons.email_outlined,
-                            errorText: authState.fieldErrorFor(
-                              loginState.fieldErrors,
-                              'email',
+                          Container(
+                            width: 58,
+                            height: 58,
+                            decoration: BoxDecoration(
+                              color: tokens.primaryColor,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: const Icon(
+                              Icons.bolt,
+                              size: 30,
+                              color: Colors.white,
                             ),
                           ),
-                          const SizedBox(height: 18),
-                          AppTextField(
-                            controller: _passwordController,
-                            label: 'PASSWORD',
-                            obscureText: _obscurePassword,
-                            textInputAction: TextInputAction.done,
-                            onFieldSubmitted: (_) => _submit(),
-                            hintText: 'password123',
-                            prefixIcon: Icons.lock_outlined,
-                            errorText: authState.fieldErrorFor(
-                              loginState.fieldErrors,
-                              'password',
-                            ),
-                            suffixIcon: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  _obscurePassword = !_obscurePassword;
-                                });
-                              },
-                              icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                                color: const Color(0xFF6B7280),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 18),
-                          _PrimaryButton(
-                            text: 'Sign In',
-                            isLoading: isLoading,
-                            onPressed: isLoading ? null : _submit,
+                          const SizedBox(height: 25),
+                          Text(
+                            'Turn your recycling into rewards.\nSign in to continue.',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  color: const Color(0xFF4B5563),
+                                  height: 1.35,
+                                  fontWeight: FontWeight.w500,
+                                ),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 18),
-                  const Divider(height: 1),
-                  const SizedBox(height: 12),
-                  Center(
-                    child: Wrap(
-                      alignment: WrapAlignment.center,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        Text(
-                          'Don\'t have an account? ',
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(color: const Color(0xFF6B7280)),
-                        ),
-                        TextButton(
-                          onPressed: isLoading
-                              ? null
-                              : () {
-                                  Navigator.of(context).pushNamed('/register');
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            if (loginState.errorMessage != null &&
+                                (loginState.fieldErrors == null ||
+                                    loginState.fieldErrors!.isEmpty)) ...[
+                              ErrorBanner(
+                                message: loginState.errorMessage!,
+                                onRetry: _submit,
+                              ),
+                              const SizedBox(height: 24),
+                            ],
+                            AppTextField(
+                              controller: _emailController,
+                              label: 'EMAIL ADDRESS',
+                              keyboardType: TextInputType.emailAddress,
+                              textInputAction: TextInputAction.next,
+                              hintText: 'user@trash2cash.com',
+                              prefixIcon: Icons.email_outlined,
+                              errorText: authState.fieldErrorFor(
+                                loginState.fieldErrors,
+                                'email',
+                              ),
+                            ),
+                            const SizedBox(height: 22),
+                            AppTextField(
+                              controller: _passwordController,
+                              label: 'PASSWORD',
+                              obscureText: _obscurePassword,
+                              textInputAction: TextInputAction.done,
+                              onFieldSubmitted: (_) => _submit(),
+                              hintText: 'password123',
+                              prefixIcon: Icons.lock_outlined,
+                              errorText: authState.fieldErrorFor(
+                                loginState.fieldErrors,
+                                'password',
+                              ),
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
                                 },
-                          style: TextButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            foregroundColor: tokens.primaryColor,
-                          ),
-                          child: const Text(
-                            'Sign Up',
-                            style: TextStyle(fontWeight: FontWeight.w700),
-                          ),
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                  color: const Color(0xFF6B7280),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 21),
+                            _PrimaryButton(
+                              text: 'Sign In',
+                              isLoading: isLoading,
+                              onPressed: isLoading ? null : _submit,
+                            ),
+                            const SizedBox(height: 18),
+                            const Divider(height: 1),
+                            const SizedBox(height: 12),
+                            Center(
+                              child: Wrap(
+                                alignment: WrapAlignment.center,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  Text(
+                                    'Don\'t have an account? ',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: const Color(0xFF6B7280),
+                                        ),
+                                  ),
+                                  TextButton(
+                                    onPressed: isLoading
+                                        ? null
+                                        : () {
+                                            Navigator.of(
+                                              context,
+                                            ).pushNamed('/register');
+                                          },
+                                    style: TextButton.styleFrom(
+                                      padding: EdgeInsets.zero,
+                                      minimumSize: Size.zero,
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                      foregroundColor: tokens.primaryColor,
+                                    ),
+                                    child: const Text(
+                                      'Sign Up',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

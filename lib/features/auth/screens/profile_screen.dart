@@ -71,11 +71,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return Scaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
-            title: Text(_isEditMode ? 'Edit Profile' : 'Profile'),
+            title: Text(
+              _isEditMode ? 'Edit Profile' : 'Profile',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
             centerTitle: false,
             backgroundColor: Colors.white,
             surfaceTintColor: Colors.white,
-            elevation: 0,
+            elevation: 1,
+            shadowColor: Colors.black.withValues(alpha: 0.08),
             scrolledUnderElevation: 0,
             automaticallyImplyLeading: _isEditMode,
             leading: _isEditMode
@@ -114,10 +120,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ]
                 : null,
-            bottom: const PreferredSize(
-              preferredSize: Size.fromHeight(1),
-              child: Divider(height: 1),
-            ),
           ),
           body: SafeArea(
             child: isLoading
