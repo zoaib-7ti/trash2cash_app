@@ -49,11 +49,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
           backgroundColor: Colors.white,
           appBar: AppBar(
             title: const Text('Create Account'),
+            centerTitle: false,
             backgroundColor: Colors.white,
             surfaceTintColor: Colors.white,
             elevation: 0,
             scrolledUnderElevation: 0,
             automaticallyImplyLeading: true,
+            actions: [
+              IconButton(onPressed: null, icon: const Icon(Icons.more_vert)),
+            ],
             bottom: const PreferredSize(
               preferredSize: Size.fromHeight(1),
               child: Divider(height: 1),
@@ -75,7 +79,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             fontWeight: FontWeight.w800,
                           ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     Text(
                       'Select how you want to use Trash 2 Cash',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -129,7 +133,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const SizedBox(height: 16),
                     ],
                     _FieldLabel(text: 'FULL NAME'),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     _TextFieldShell(
                       controller: _nameController,
                       hintText: 'John Doe',
@@ -142,7 +146,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 14),
                     _FieldLabel(text: 'EMAIL ADDRESS'),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     _TextFieldShell(
                       controller: _emailController,
                       hintText: 'john@example.com',
@@ -156,7 +160,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 14),
                     _FieldLabel(text: 'PHONE NUMBER'),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     _TextFieldShell(
                       controller: _phoneController,
                       hintText: '03001234567',
@@ -170,7 +174,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 14),
                     _FieldLabel(text: 'PASSWORD'),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     _TextFieldShell(
                       controller: _passwordController,
                       hintText: '••••••••',
@@ -202,10 +206,62 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         color: const Color(0xFF6B7280),
                       ),
                     ),
+                    const SizedBox(height: 14),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 18,
+                          height: 18,
+                          margin: const EdgeInsets.only(top: 1),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: const Color(0xFF22C55E)),
+                          ),
+                          child: const Icon(
+                            Icons.check,
+                            size: 12,
+                            color: Color(0xFF22C55E),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text.rich(
+                            TextSpan(
+                              text: 'By creating an account, you agree to our ',
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color: const Color(0xFF6B7280),
+                                    height: 1.35,
+                                  ),
+                              children: const [
+                                TextSpan(
+                                  text: 'Terms of Service',
+                                  style: TextStyle(
+                                    color: Color(0xFF22C55E),
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                TextSpan(text: ' and '),
+                                TextSpan(
+                                  text: 'Privacy Policy',
+                                  style: TextStyle(
+                                    color: Color(0xFF22C55E),
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                TextSpan(text: '.'),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                     if (_selectedRole == UserRole.collector) ...[
                       const SizedBox(height: 14),
                       _FieldLabel(text: 'CNIC NUMBER'),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       _TextFieldShell(
                         controller: _cnicController,
                         hintText: '13101-1234567-1',
@@ -218,7 +274,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 14),
                       _FieldLabel(text: 'VEHICLE TYPE'),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       _TextFieldShell(
                         controller: _vehicleTypeController,
                         hintText: 'Motorbike',
@@ -231,13 +287,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                     ],
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 20),
                     _PrimaryButton(
                       text: 'Create Account',
                       isLoading: isLoading,
                       onPressed: isLoading ? null : _submit,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 14),
                     Center(
                       child: Wrap(
                         alignment: WrapAlignment.center,
@@ -353,6 +409,9 @@ class _TextFieldShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final borderColor = errorText != null
+        ? const Color(0xFFFCA5A5)
+        : const Color(0xFFD1D5DB);
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
@@ -361,9 +420,35 @@ class _TextFieldShell extends StatelessWidget {
       onFieldSubmitted: onFieldSubmitted,
       decoration: InputDecoration(
         hintText: hintText,
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(vertical: 16),
         prefixIcon: Icon(prefixIcon, color: const Color(0xFF6B7280)),
         suffixIcon: suffixIcon,
         errorText: errorText,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: borderColor),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFD1D5DB)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: AppTheme.lightTokens.primaryColor,
+            width: 1.4,
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFFCA5A5)),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFFCA5A5), width: 1.4),
+        ),
       ),
     );
   }
@@ -454,22 +539,31 @@ class _RoleCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(18),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.fromLTRB(14, 16, 14, 16),
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: borderColor, width: 1.3),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: tokens.primaryColor.withValues(alpha: 0.12),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ]
+              : null,
         ),
         child: Column(
           children: [
             Container(
-              width: 44,
-              height: 44,
+              width: 48,
+              height: 48,
               decoration: BoxDecoration(
                 color: iconCircleColor,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: iconColor, size: 22),
+              child: Icon(icon, color: iconColor, size: 24),
             ),
             const SizedBox(height: 12),
             Text(

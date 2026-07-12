@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/routing/route_guard.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/error_banner.dart';
-import '../../../core/routing/route_guard.dart';
 import '../state/auth_state.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -17,6 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
   bool _obscurePassword = true;
   bool _handledRouteMessage = false;
 
@@ -61,11 +62,18 @@ class _LoginScreenState extends State<LoginScreen> {
           backgroundColor: Colors.white,
           appBar: AppBar(
             title: const Text('Log in'),
+            centerTitle: false,
             backgroundColor: Colors.white,
             surfaceTintColor: Colors.white,
             elevation: 0,
             scrolledUnderElevation: 0,
             automaticallyImplyLeading: true,
+            actions: const [
+              Padding(
+                padding: EdgeInsets.only(right: 4),
+                child: Icon(Icons.more_vert),
+              ),
+            ],
             bottom: const PreferredSize(
               preferredSize: Size.fromHeight(1),
               child: Divider(height: 1),
@@ -80,28 +88,34 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Container(
-                      padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
+                      padding: const EdgeInsets.fromLTRB(22, 28, 22, 24),
                       decoration: BoxDecoration(
-                        color: tokens.lightGreenSurfaceTint,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: tokens.lightGreenSurfaceTint),
+                        color: const Color(0xFFF6FBF7),
+                        borderRadius: BorderRadius.circular(22),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.06),
+                            blurRadius: 24,
+                            offset: const Offset(0, 12),
+                          ),
+                        ],
                       ),
                       child: Column(
                         children: [
                           Container(
-                            width: 72,
-                            height: 72,
+                            width: 58,
+                            height: 58,
                             decoration: BoxDecoration(
                               color: tokens.primaryColor,
-                              borderRadius: BorderRadius.circular(22),
+                              borderRadius: BorderRadius.circular(16),
                             ),
-                            child: Icon(
+                            child: const Icon(
                               Icons.bolt,
-                              size: 38,
-                              color: Colors.white.withValues(alpha: 0.98),
+                              size: 30,
+                              color: Colors.white,
                             ),
                           ),
-                          const SizedBox(height: 18),
+                          const SizedBox(height: 16),
                           Text(
                             'Turn your recycling into rewards.\nSign in to continue.',
                             textAlign: TextAlign.center,
@@ -126,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 16),
                     ],
                     _FieldLabel(text: 'EMAIL ADDRESS'),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     _TextFieldShell(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -139,14 +153,32 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _FieldLabel(text: 'PASSWORD'),
-                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        _FieldLabel(text: 'PASSWORD'),
+                        const Spacer(),
+                        TextButton(
+                          onPressed: () {},
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            foregroundColor: tokens.primaryColor,
+                          ),
+                          child: const Text(
+                            'Forgot Password?',
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
                     _TextFieldShell(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
                       textInputAction: TextInputAction.done,
                       onFieldSubmitted: (_) => _submit(),
-                      hintText: '••••••••',
+                      hintText: 'password123',
                       prefixIcon: Icons.lock_outline,
                       errorText: authState.fieldErrorFor(
                         loginState.fieldErrors,
@@ -174,7 +206,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 18),
                     const Divider(height: 1),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 12),
                     Center(
                       child: Wrap(
                         alignment: WrapAlignment.center,
@@ -202,6 +234,39 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: const Text(
                               'Sign Up',
                               style: TextStyle(fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Center(
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 12,
+                        children: const [
+                          Text(
+                            'Privacy Policy',
+                            style: TextStyle(
+                              color: Color(0xFF9CA3AF),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          Text(
+                            '•',
+                            style: TextStyle(
+                              color: Color(0xFFCBD5E1),
+                              fontSize: 12,
+                            ),
+                          ),
+                          Text(
+                            'Terms of Service',
+                            style: TextStyle(
+                              color: Color(0xFF9CA3AF),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
@@ -282,6 +347,10 @@ class _TextFieldShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final borderColor = errorText != null
+        ? const Color(0xFFFCA5A5)
+        : const Color(0xFFD1D5DB);
+
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
@@ -290,9 +359,35 @@ class _TextFieldShell extends StatelessWidget {
       onFieldSubmitted: onFieldSubmitted,
       decoration: InputDecoration(
         hintText: hintText,
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(vertical: 16),
         prefixIcon: Icon(prefixIcon, color: const Color(0xFF6B7280)),
         suffixIcon: suffixIcon,
         errorText: errorText,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: borderColor),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFD1D5DB)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: AppTheme.lightTokens.primaryColor,
+            width: 1.4,
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFFCA5A5)),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFFCA5A5), width: 1.4),
+        ),
       ),
     );
   }
@@ -312,6 +407,7 @@ class _PrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokens = AppTheme.lightTokens;
+
     return SizedBox(
       width: double.infinity,
       child: FilledButton(
@@ -338,10 +434,10 @@ class _PrimaryButton extends StatelessWidget {
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Text('Sign In'),
-                  SizedBox(width: 8),
-                  Icon(Icons.arrow_forward, size: 18),
+                children: [
+                  Text(text),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.arrow_forward, size: 18),
                 ],
               ),
       ),

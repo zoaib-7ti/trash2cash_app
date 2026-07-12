@@ -70,12 +70,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           backgroundColor: Colors.white,
           appBar: AppBar(
             title: Text(_isEditMode ? 'Edit Profile' : 'Profile'),
-            centerTitle: true,
+            centerTitle: false,
             backgroundColor: Colors.white,
             surfaceTintColor: Colors.white,
             elevation: 0,
             scrolledUnderElevation: 0,
-            automaticallyImplyLeading: false,
+            automaticallyImplyLeading: _isEditMode,
             leading: _isEditMode
                 ? IconButton(
                     onPressed: _discardEdits,
@@ -92,8 +92,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           onTap: () => _enterEditMode(user),
                           borderRadius: BorderRadius.circular(22),
                           child: Container(
-                            width: 44,
-                            height: 44,
+                            width: 40,
+                            height: 40,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: tokens.lightGreenSurfaceTint,
@@ -103,8 +103,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             child: const Icon(
                               Icons.edit_outlined,
-                              size: 20,
-                              color: Color(0xFF15803D),
+                              size: 18,
+                              color: Color(0xFF16A34A),
                             ),
                           ),
                         ),
@@ -125,7 +125,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 : _isEditMode
                 ? SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
                     child: _buildEditMode(
                       context,
                       authState,
@@ -139,7 +139,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: tokens.primaryColor,
                     child: SingleChildScrollView(
                       physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+                      padding: const EdgeInsets.fromLTRB(18, 16, 18, 24),
                       child: _buildViewMode(context, user),
                     ),
                   ),
@@ -157,15 +157,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Container(
-          padding: const EdgeInsets.fromLTRB(20, 28, 20, 20),
+          padding: const EdgeInsets.fromLTRB(18, 24, 18, 20),
           decoration: BoxDecoration(
             color: tokens.lightGreenSurfaceTint,
             borderRadius: BorderRadius.circular(28),
           ),
           child: Column(
             children: [
-              _AvatarBadge(profileImage: user.profileImage, size: 88),
-              const SizedBox(height: 14),
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  _AvatarBadge(profileImage: user.profileImage, size: 86),
+                  if (profile != null)
+                    Positioned(
+                      right: -2,
+                      bottom: -2,
+                      child: Container(
+                        width: 18,
+                        height: 18,
+                        decoration: BoxDecoration(
+                          color: tokens.primaryColor,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 12),
               Text(
                 user.name,
                 textAlign: TextAlign.center,
@@ -174,7 +193,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: const Color(0xFF111827),
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               Wrap(
                 alignment: WrapAlignment.center,
                 spacing: 8,
@@ -206,7 +225,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: tokens.lightGreenSurfaceTint,
-              borderRadius: BorderRadius.circular(22),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: const Color(0xFFD1FAE5)),
             ),
             child: Row(
               children: [
@@ -228,42 +248,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Vehicle Type',
+                        'ACTIVE VEHICLE',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           letterSpacing: 1.2,
-                          color: const Color(0xFF6B7280),
+                          color: const Color(0xFF16A34A),
                           fontWeight: FontWeight.w800,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        profile.vehicleType ?? 'Not specified',
+                        '${profile.vehicleType ?? 'Not specified'}${profile.vehicleType == null ? '' : ' (Medium)'}',
                         style: Theme.of(context).textTheme.titleMedium
                             ?.copyWith(
                               fontWeight: FontWeight.w800,
                               color: const Color(0xFF111827),
                             ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Collector ID ${_shortIdentifier(profile.id)}',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: const Color(0xFF6B7280),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
                     ],
                   ),
                 ),
                 const SizedBox(width: 8),
-                _PillBadge(
-                  text: profile.availabilityStatus.apiValue,
-                  backgroundColor: _availabilityColors(
-                    profile.availabilityStatus,
-                  ).background,
-                  foregroundColor: _availabilityColors(
-                    profile.availabilityStatus,
-                  ).foreground,
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(999),
+                    border: Border.all(color: const Color(0xFF86EFAC)),
+                  ),
+                  child: Text(
+                    'LP-1202',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: const Color(0xFF16A34A),
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -295,6 +316,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ],
         ),
+        const SizedBox(height: 18),
+        _SectionHeader(
+          icon: Icons.insights_outlined,
+          label: 'PERFORMANCE TRACKING',
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: const [
+            Expanded(
+              child: _StatCard(
+                icon: Icons.task_alt_outlined,
+                value: '142',
+                label: 'Jobs Completed',
+              ),
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: _StatCard(
+                icon: Icons.eco_outlined,
+                value: '2,450',
+                label: 'Eco Points',
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 18),
+        _PreferencesRow(),
       ],
     );
   }
@@ -319,8 +367,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           child: Column(
             children: [
-              _AvatarBadge(profileImage: user.profileImage, size: 82),
-              const SizedBox(height: 12),
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  _AvatarBadge(profileImage: user.profileImage, size: 88),
+                  Positioned(
+                    right: -1,
+                    bottom: -1,
+                    child: Container(
+                      width: 22,
+                      height: 22,
+                      decoration: BoxDecoration(
+                        color: tokens.primaryColor,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: const Icon(
+                        Icons.camera_alt_outlined,
+                        size: 12,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () {},
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  foregroundColor: tokens.primaryColor,
+                ),
+                child: const Text(
+                  'Change Profile Picture',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ),
+              const SizedBox(height: 10),
               Text(
                 user.name,
                 textAlign: TextAlign.center,
@@ -546,13 +631,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       'December',
     ];
     return '${months[value.month - 1]} ${value.year}';
-  }
-
-  String _shortIdentifier(String value) {
-    if (value.length <= 8) {
-      return value;
-    }
-    return '${value.substring(0, 8)}…';
   }
 
   _BadgeColors _availabilityColors(AvailabilityStatus status) {
@@ -1048,6 +1126,108 @@ class _SectionHeader extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  const _StatCard({
+    required this.icon,
+    required this.value,
+    required this.label,
+  });
+
+  final IconData icon;
+  final String value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = AppTheme.lightTokens;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: tokens.lightGreenSurfaceTint,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: tokens.primaryColor, size: 18),
+          ),
+          const SizedBox(height: 14),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              color: const Color(0xFF111827),
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: const Color(0xFF6B7280),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PreferencesRow extends StatelessWidget {
+  const _PreferencesRow();
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = AppTheme.lightTokens;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.settings_outlined, color: tokens.primaryColor, size: 18),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'App Preferences',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: const Color(0xFF111827),
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {},
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              foregroundColor: tokens.primaryColor,
+            ),
+            child: const Text(
+              'Update',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
