@@ -25,6 +25,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   bool _isEditMode = false;
   bool _requestedInitialLoad = false;
+  bool _isLoggingOut = false;
   AvailabilityStatus _availabilityStatus = AvailabilityStatus.offline;
 
   @override
@@ -140,7 +141,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: SingleChildScrollView(
                       physics: const AlwaysScrollableScrollPhysics(),
                       padding: const EdgeInsets.fromLTRB(18, 16, 18, 24),
-                      child: _buildViewMode(context, user),
+                      child: _buildViewMode(context, authState, user),
                     ),
                   ),
           ),
@@ -149,7 +150,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildViewMode(BuildContext context, UserModel user) {
+  Widget _buildViewMode(
+    BuildContext context,
+    AuthState authState,
+    UserModel user,
+  ) {
     final tokens = AppTheme.lightTokens;
     final profile = user.collectorProfile;
 
@@ -343,6 +348,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         const SizedBox(height: 18),
         _PreferencesRow(),
+        const SizedBox(height: 18),
+        _LogoutButton(
+          isLoading: _isLoggingOut,
+          onPressed: _isLoggingOut
+              ? null
+              : () => _logout(authState),
+        ),
       ],
     );
   }
@@ -604,6 +616,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       _isEditMode = false;
     });
+  }
+
+  Future<void> _logout(AuthState authState) async {
+    setState(() {
+      _isLoggingOut = true;
+    });
+
+    await authState.logout();
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _isLoggingOut = false;
+    });
+
+    Navigator.of(context).pushNamedAndRemoveUntil(
+      '/login',
+      (route) => false,
+    );
   }
 
   String _roleLabel(UserRole role) {
@@ -1227,6 +1260,92 @@ class _PreferencesRow extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _LogoutButton extends StatelessWidget {
+  const _LogoutButton({
+    required this.isLoading,
+    required this.onPressed,
+  });
+
+  final bool isLoading;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFFCA5A5)),
+            color: const Color(0xFFFFFBFB),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEE2E2),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.logout_rounded,
+                  color: const Color(0xFFDC2626),
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      isLoading ? 'Logging out...' : 'Log out',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            color: const Color(0xFF111827),
+                            fontWeight: FontWeight.w800,
+                          ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Sign out of your account on this device',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: const Color(0xFF6B7280),
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              isLoading
+                  ? SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppTheme.lightTokens.primaryColor,
+                      ),
+                    )
+                  : Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 16,
+                      color: AppTheme.lightTokens.primaryColor,
+                    ),
+            ],
+          ),
+        ),
       ),
     );
   }
