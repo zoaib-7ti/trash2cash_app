@@ -10,6 +10,7 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/error_banner.dart';
 import '../../../../core/widgets/empty_state_view.dart';
 import '../../../../core/widgets/skeleton_loader.dart';
+import '../../../../core/widgets/shadow_card_scaffold_body.dart';
 import '../../../../data/models/pickup_request_model.dart';
 import '../state/pickups_state.dart';
 
@@ -248,10 +249,11 @@ class _EditPickupScreenState extends State<EditPickupScreen> {
             shadowColor: Colors.black.withValues(alpha: 0.08),
             scrolledUnderElevation: 0,
           ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Builder(
-              builder: (context) {
+          body: ShadowCardScaffoldBody(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Builder(
+                builder: (context) {
                 if (detailState.isLoading) {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -695,6 +697,7 @@ class _EditPickupScreenState extends State<EditPickupScreen> {
               },
             ),
           ),
+        ),
         );
       },
     );
@@ -713,9 +716,6 @@ class _Card extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFFE5E7EB),
-        ),
       ),
       child: child,
     );

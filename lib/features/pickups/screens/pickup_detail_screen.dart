@@ -132,29 +132,38 @@ class _PickupDetailLoadedView extends StatelessWidget {
           _HeaderImageSection(pickup: pickup),
           const SizedBox(height: 16),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: _StatusSection(pickup: pickup),
-          ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: _InfoCard(pickup: pickup),
-          ),
-          if (pickup.collector != null) ...[
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _CollectorCard(collector: pickup.collector!),
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    blurRadius: 24,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _StatusSection(pickup: pickup),
+                  const SizedBox(height: 16),
+                  _InfoCard(pickup: pickup),
+                  if (pickup.collector != null) ...[
+                    const SizedBox(height: 16),
+                    _CollectorCard(collector: pickup.collector!),
+                  ],
+                  if (pickup.status == PickupStatus.pending) ...[
+                    const SizedBox(height: 16),
+                    _ActionButtons(pickup: pickup),
+                  ],
+                ],
+              ),
             ),
-          ],
-          if (pickup.status == PickupStatus.pending) ...[
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _ActionButtons(pickup: pickup),
-            ),
-          ],
-          const SizedBox(height: 24),
+          ),
         ],
       ),
     );

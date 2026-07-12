@@ -7,10 +7,10 @@ import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/profile_screen.dart';
 import '../../features/auth/screens/register_screen.dart';
 import '../../features/auth/state/auth_state.dart';
+import '../../features/home/screens/household_shell_screen.dart';
 import '../../features/pickups/screens/create_pickup_screen.dart';
 import '../../features/pickups/screens/edit_pickup_screen.dart';
 import '../../features/pickups/screens/pickup_detail_screen.dart';
-import '../../features/pickups/screens/pickup_list_screen.dart';
 import '../theme/app_theme.dart';
 import 'route_guard.dart';
 
@@ -71,7 +71,7 @@ class _AppRouterState extends State<AppRouter> {
         '/login': (_) => const LoginScreen(),
         '/register': (_) => const RegisterScreen(),
         '/profile': (_) => const ProfileScreen(),
-        '/pickups': (_) => const PickupListScreen(),
+        '/home': (_) => const HouseholdShellScreen(),
         '/pickups/create': (_) => const CreatePickupScreen(),
         '/pickups/detail': (_) => const PickupDetailScreen(),
         '/pickups/edit': (_) => const EditPickupScreen(),

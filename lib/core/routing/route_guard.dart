@@ -15,7 +15,7 @@ extension AppDestinationRouteName on AppDestination {
       case AppDestination.login:
         return '/login';
       case AppDestination.citizenHome:
-        return '/pickups';
+        return '/home';
       case AppDestination.collectorHome:
         return '/collector-home';
     }

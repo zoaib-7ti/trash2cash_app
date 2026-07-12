@@ -5,6 +5,7 @@ import '../../../core/routing/route_guard.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/error_banner.dart';
+import '../../../core/widgets/shadow_card_scaffold_body.dart';
 import '../state/auth_state.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -76,24 +77,10 @@ class _LoginScreenState extends State<LoginScreen> {
             scrolledUnderElevation: 0,
             automaticallyImplyLeading: true,
           ),
-          body: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.3),
-                      blurRadius: 24,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
+          body: ShadowCardScaffoldBody(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
                     Container(
                       padding: const EdgeInsets.fromLTRB(22, 28, 22, 24),
                       decoration: const BoxDecoration(
@@ -242,9 +229,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
               ),
-            ),
-          ),
-        );
+            );
       },
     );
   }

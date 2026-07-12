@@ -7,6 +7,7 @@ import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/empty_state_view.dart';
 import '../../../core/widgets/error_banner.dart';
 import '../../../core/widgets/skeleton_loader.dart';
+import '../../../core/widgets/shadow_card_scaffold_body.dart';
 import '../../../data/models/collector_profile_model.dart';
 import '../../../data/models/user_model.dart';
 import '../state/auth_state.dart';
@@ -127,24 +128,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 : user == null
                 ? _ProfileMissingView(onRetry: authState.refreshProfile)
                 : _isEditMode
-                ? SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
+                ? ShadowCardScaffoldBody(
                     padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-                    child: _buildEditMode(
-                      context,
-                      authState,
-                      user,
-                      updateState,
-                      isSaving,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: _buildEditMode(
+                        context,
+                        authState,
+                        user,
+                        updateState,
+                        isSaving,
+                      ),
                     ),
                   )
                 : RefreshIndicator(
                     onRefresh: authState.refreshProfile,
                     color: tokens.primaryColor,
-                    child: SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
+                    child: ShadowCardScaffoldBody(
                       padding: const EdgeInsets.fromLTRB(18, 16, 18, 24),
-                      child: _buildViewMode(context, authState, user),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: _buildViewMode(context, authState, user),
+                      ),
                     ),
                   ),
           ),

@@ -111,45 +111,64 @@ class _PickupListScreenState extends State<PickupListScreen> {
             label: const Text('New Pickup'),
             backgroundColor: tokens.primaryColor,
           ),
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Container(
+          body: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Container(
+              decoration: BoxDecoration(
                 color: Colors.white,
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      _FilterChip(
-                        label: 'All',
-                        selected: pickupsState.activeStatusFilter == null,
-                        onSelected: (_) => pickupsState.loadPickups(
-                          reset: true,
-                          statusFilter: null,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    blurRadius: 24,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      color: Colors.white,
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _FilterChip(
+                              label: 'All',
+                              selected: pickupsState.activeStatusFilter == null,
+                              onSelected: (_) => pickupsState.loadPickups(
+                                reset: true,
+                                statusFilter: null,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            ...PickupStatus.values.map((status) {
+                              final label = _statusToLabel(status);
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: _FilterChip(
+                                  label: label,
+                                  selected: pickupsState.activeStatusFilter == status,
+                                  onSelected: (_) => pickupsState.loadPickups(
+                                    reset: true,
+                                    statusFilter: status,
+                                  ),
+                                ),
+                              );
+                            }),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      ...PickupStatus.values.map((status) {
-                        final label = _statusToLabel(status);
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: _FilterChip(
-                            label: label,
-                            selected: pickupsState.activeStatusFilter == status,
-                            onSelected: (_) => pickupsState.loadPickups(
-                              reset: true,
-                              statusFilter: status,
-                            ),
-                          ),
-                        );
-                      }),
-                    ],
-                  ),
+                    ),
+                    Expanded(child: _buildBody(pickupsState)),
+                  ],
                 ),
               ),
-              Expanded(child: _buildBody(pickupsState)),
-            ],
+            ),
           ),
         );
       },

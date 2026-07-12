@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/error_banner.dart';
+import '../../../core/widgets/shadow_card_scaffold_body.dart';
 import '../../../data/models/user_model.dart';
 import '../state/auth_state.dart';
 
@@ -63,25 +64,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
             scrolledUnderElevation: 0,
             automaticallyImplyLeading: true,
           ),
-          body: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.3),
-                      blurRadius: 24,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
+          body: ShadowCardScaffoldBody(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
                     Text(
                       'Join the Community',
                       style: Theme.of(context).textTheme.headlineSmall
@@ -293,8 +281,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ],
                       ),
                     ),
-                  ],
-                ),
+                ],
               ),
             ),
           ),
