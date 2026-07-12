@@ -118,7 +118,7 @@ class PickupRequestModel {
     required this.id,
     required this.citizenId,
     required this.collectorId,
-    required this.materialType,
+    required this.materialTypes,
     required this.estimatedWeight,
     required this.imageUrl,
     required this.pickupAddress,
@@ -134,7 +134,7 @@ class PickupRequestModel {
   final String id;
   final String citizenId;
   final String? collectorId;
-  final PickupMaterialType? materialType;
+  final List<PickupMaterialType> materialTypes;
   final double? estimatedWeight;
   final String imageUrl;
   final String pickupAddress;
@@ -158,13 +158,36 @@ class PickupRequestModel {
     } else {
       collector = null;
     }
+    // Check both materialTypes (new field) and materialType (legacy field for backward compatibility)
+    List<PickupMaterialType> materialTypes =
+        (json['materialTypes'] as List<dynamic>? ?? [])
+            .map((v) => v?.toString())
+            .whereType<String>()
+            .map((v) {
+              try {
+                return PickupMaterialTypeJson.fromJson(v);
+              } catch (_) {
+                return null;
+              }
+            })
+            .whereType<PickupMaterialType>()
+            .toList();
+    // If no materialTypes, try to parse legacy materialType
+    if (materialTypes.isEmpty && json['materialType'] != null) {
+      try {
+        final legacyType = PickupMaterialTypeJson.fromJson(
+          json['materialType'].toString(),
+        );
+        materialTypes = [legacyType];
+      } catch (_) {
+        // ignore
+      }
+    }
     return PickupRequestModel(
       id: json['id']?.toString() ?? '',
       citizenId: json['citizenId']?.toString() ?? '',
       collectorId: json['collectorId']?.toString(),
-      materialType: json['materialType'] == null
-          ? null
-          : PickupMaterialTypeJson.fromJson(json['materialType'].toString()),
+      materialTypes: materialTypes,
       estimatedWeight: _toNullableDouble(json['estimatedWeight']),
       imageUrl: json['imageUrl']?.toString() ?? '',
       pickupAddress: json['pickupAddress']?.toString() ?? '',
@@ -183,7 +206,7 @@ class PickupRequestModel {
       'id': id,
       'citizenId': citizenId,
       'collectorId': collectorId,
-      'materialType': materialType?.apiValue,
+      'materialTypes': materialTypes.map((m) => m.apiValue).toList(),
       'estimatedWeight': estimatedWeight,
       'imageUrl': imageUrl,
       'pickupAddress': pickupAddress,

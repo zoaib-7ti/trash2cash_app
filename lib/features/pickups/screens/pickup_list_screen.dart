@@ -384,7 +384,11 @@ class _PickupCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    pickup.materialType?.label ?? 'General waste',
+                    pickup.materialTypes.isEmpty
+                        ? 'General waste'
+                        : pickup.materialTypes.length <= 2
+                            ? pickup.materialTypes.map((m) => m.label).join(', ')
+                            : '${pickup.materialTypes.take(2).map((m) => m.label).join(', ')} +${pickup.materialTypes.length - 2} more',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: const Color(0xFF0F172A),

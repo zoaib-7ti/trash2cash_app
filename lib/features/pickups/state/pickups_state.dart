@@ -103,7 +103,7 @@ class PickupsState extends ChangeNotifier {
     required double pickupLat,
     required double pickupLng,
     String? scheduledTimeIso,
-    String? materialType,
+    required List<String> materialTypes,
     double? estimatedWeight,
   }) async {
     _createState = const RequestState<PickupRequestModel>(
@@ -118,7 +118,7 @@ class PickupsState extends ChangeNotifier {
         pickupLat: pickupLat,
         pickupLng: pickupLng,
         scheduledTimeIso: scheduledTimeIso,
-        materialType: materialType,
+        materialTypes: materialTypes,
         estimatedWeight: estimatedWeight,
       );
 

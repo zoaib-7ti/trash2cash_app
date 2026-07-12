@@ -468,7 +468,9 @@ class _InfoCard extends StatelessWidget {
           _InfoRow(
             icon: Icons.recycling_outlined,
             label: 'MATERIAL TYPE',
-            value: pickup.materialType?.label ?? 'Not specified',
+            value: pickup.materialTypes.isEmpty
+                ? 'Not specified'
+                : pickup.materialTypes.map((m) => m.label).join(', '),
           ),
           const Divider(height: 1),
           _InfoRow(

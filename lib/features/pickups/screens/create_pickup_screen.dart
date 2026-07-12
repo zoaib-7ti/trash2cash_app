@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -7,10 +8,10 @@ import 'package:provider/provider.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../../core/state/request_status.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/error_banner.dart';
 import '../../../../data/models/pickup_request_model.dart';
 import '../state/pickups_state.dart';
-import '../widgets/pickup_form_fields.dart';
 
 class CreatePickupScreen extends StatefulWidget {
   const CreatePickupScreen({super.key});
@@ -20,12 +21,13 @@ class CreatePickupScreen extends StatefulWidget {
 }
 
 class _CreatePickupScreenState extends State<CreatePickupScreen> {
+  final _formKey = GlobalKey<FormState>();
   final _addressController = TextEditingController();
   final _latitudeController = TextEditingController();
   final _longitudeController = TextEditingController();
   final _estimatedWeightController = TextEditingController();
   DateTime? _scheduledTime;
-  PickupMaterialType? _selectedMaterialType;
+  final List<PickupMaterialType> _selectedMaterialTypes = [];
   File? _imageFile;
   bool _triedSubmit = false;
   List<ApiFieldError>? _fieldErrors;
@@ -93,35 +95,66 @@ class _CreatePickupScreenState extends State<CreatePickupScreen> {
     );
   }
 
+  String? _validateAddress(String? value) {
+    if (value == null || value.trim().length < 5) {
+      return 'Address must be at least 5 characters';
+    }
+    return null;
+  }
+
+  String? _validateLatitude(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Latitude is required';
+    }
+    try {
+      final lat = double.parse(value.trim());
+      if (lat < -90 || lat > 90) {
+        return 'Latitude must be between -90 and 90';
+      }
+      return null;
+    } catch (_) {
+      return 'Invalid latitude';
+    }
+  }
+
+  String? _validateLongitude(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Longitude is required';
+    }
+    try {
+      final lng = double.parse(value.trim());
+      if (lng < -180 || lng > 180) {
+        return 'Longitude must be between -180 and 180';
+      }
+      return null;
+    } catch (_) {
+      return 'Invalid longitude';
+    }
+  }
+
+  String? _validateWeight(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return null;
+    }
+    try {
+      final weight = double.parse(value.trim());
+      if (weight <= 0) {
+        return 'Weight must be positive';
+      }
+      return null;
+    } catch (_) {
+      return 'Invalid weight';
+    }
+  }
+
   bool _validate() {
     bool isValid = true;
 
-    // Address: min 5 characters
-    if (_addressController.text.trim().length < 5) {
-      isValid = false;
-    }
-
-    // Latitude and longitude must be valid doubles if provided
-    try {
-      final lat = double.tryParse(_latitudeController.text.trim());
-      final lng = double.tryParse(_longitudeController.text.trim());
-      if (lat == null || lng == null) {
-        isValid = false;
-      }
-    } catch (_) {
-      isValid = false;
-    }
-
-    // Estimated weight must be positive if provided
-    final estimatedWeight = double.tryParse(
-      _estimatedWeightController.text.trim(),
-    );
-    if (estimatedWeight != null && estimatedWeight <= 0) {
-      isValid = false;
-    }
-
-    // Image required
     if (_imageFile == null) {
+      isValid = false;
+    }
+
+    if (_selectedMaterialTypes.isEmpty) {
       isValid = false;
     }
 
@@ -132,10 +165,12 @@ class _CreatePickupScreenState extends State<CreatePickupScreen> {
     setState(() {
       _triedSubmit = true;
     });
-    if (!_validate()) {
-      setState(() {}); // rebuild to show errors
+
+    if (!_formKey.currentState!.validate() || !_validate()) {
+      setState(() {});
       return;
     }
+
     final pickupsState = context.read<PickupsState>();
     final success = await pickupsState.createPickup(
       imageFile: _imageFile!,
@@ -143,7 +178,7 @@ class _CreatePickupScreenState extends State<CreatePickupScreen> {
       pickupLat: double.parse(_latitudeController.text.trim()),
       pickupLng: double.parse(_longitudeController.text.trim()),
       scheduledTimeIso: _scheduledTime?.toUtc().toIso8601String(),
-      materialType: _selectedMaterialType?.apiValue,
+      materialTypes: _selectedMaterialTypes.map((t) => t.apiValue).toList(),
       estimatedWeight: _estimatedWeightController.text.isNotEmpty
           ? double.parse(_estimatedWeightController.text.trim())
           : null,
@@ -156,7 +191,6 @@ class _CreatePickupScreenState extends State<CreatePickupScreen> {
     if (success) {
       Navigator.of(context).pop(true);
     } else {
-      // Check field errors from createState
       setState(() {
         _fieldErrors = pickupsState.createState.fieldErrors;
       });
@@ -165,6 +199,7 @@ class _CreatePickupScreenState extends State<CreatePickupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = AppTheme.lightTokens;
     return Consumer<PickupsState>(
       builder: (context, pickupsState, child) {
         return Scaffold(
@@ -185,103 +220,431 @@ class _CreatePickupScreenState extends State<CreatePickupScreen> {
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Error banner
-                if (pickupsState.createState.errorMessage != null) ...[
-                  ErrorBanner(
-                    message: pickupsState.createState.errorMessage!,
-                    onRetry: _submit,
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                // Image picker
-                GestureDetector(
-                  onTap: _pickImage,
-                  child: Container(
-                    height: 200,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: _triedSubmit && _imageFile == null
-                            ? const Color(0xFFB91C1C)
-                            : const Color(0xFFD1D5DB),
-                      ),
-                      borderRadius: BorderRadius.circular(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Error banner
+                  if (pickupsState.createState.errorMessage != null) ...[
+                    ErrorBanner(
+                      message: pickupsState.createState.errorMessage!,
+                      onRetry: _submit,
                     ),
-                    child: _imageFile != null
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: Image.file(
-                              _imageFile!,
-                              fit: BoxFit.cover,
-                              width: double.infinity,
+                    const SizedBox(height: 16),
+                  ],
+
+                  // Photo card
+                  _Card(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const _SectionHeader(title: 'PHOTO'),
+                        const SizedBox(height: 12),
+                        GestureDetector(
+                          onTap: _pickImage,
+                          child: Container(
+                            height: 200,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: _triedSubmit && _imageFile == null
+                                    ? const Color(0xFFB91C1C)
+                                    : const Color(0xFFD1D5DB),
+                              ),
+                              borderRadius: BorderRadius.circular(16),
                             ),
-                          )
-                        : const Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.add_a_photo_outlined,
-                                size: 48,
-                                color: Color(0xFF6B7280),
-                              ),
-                              SizedBox(height: 12),
-                              Text(
-                                'Add a photo of the waste',
-                                style: TextStyle(color: Color(0xFF6B7280)),
-                              ),
-                            ],
+                            child: _imageFile != null
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Image.file(
+                                      _imageFile!,
+                                      fit: BoxFit.cover,
+                                      width: double.infinity,
+                                    ),
+                                  )
+                                : const Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.add_a_photo_outlined,
+                                        size: 48,
+                                        color: Color(0xFF6B7280),
+                                      ),
+                                      SizedBox(height: 12),
+                                      Text(
+                                        'Add a photo of the waste',
+                                        style: TextStyle(
+                                          color: Color(0xFF6B7280),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                           ),
-                  ),
-                ),
-                if (_triedSubmit && _imageFile == null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      'Please add a photo of the waste',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: const Color(0xFFB91C1C),
-                      ),
+                        ),
+                        if (_triedSubmit && _imageFile == null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              'Please add a photo of the waste',
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: const Color(0xFFB91C1C)),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
-                const SizedBox(height: 20),
-                // Form fields
-                PickupFormFields(
-                  addressController: _addressController,
-                  latitudeController: _latitudeController,
-                  longitudeController: _longitudeController,
-                  scheduledTime: _scheduledTime,
-                  onScheduledTimeChanged: (value) {
-                    setState(() {
-                      _scheduledTime = value;
-                    });
-                  },
-                  selectedMaterialType: _selectedMaterialType,
-                  onMaterialTypeChanged: (value) {
-                    setState(() {
-                      _selectedMaterialType = value;
-                    });
-                  },
-                  estimatedWeightController: _estimatedWeightController,
-                  errorTextFor: _errorTextFor,
-                ),
-                const SizedBox(height: 24),
-                // Submit button
-                _PrimaryButton(
-                  text: 'Request Pickup',
-                  isLoading:
-                      pickupsState.createState.status == RequestStatus.loading,
-                  onPressed:
-                      pickupsState.createState.status == RequestStatus.loading
-                      ? null
-                      : _submit,
-                ),
-              ],
+
+                  const SizedBox(height: 24),
+
+                  // Location card
+                  _Card(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const _SectionHeader(title: 'LOCATION'),
+                        const SizedBox(height: 12),
+                        AppTextField(
+                          controller: _addressController,
+                          label: 'ADDRESS',
+                          hintText: 'e.g. 123 Main Street, City',
+                          prefixIcon: Icons.location_on_outlined,
+                          errorText: _errorTextFor('pickupAddress'),
+                          validator: _validateAddress,
+                        ),
+                        const SizedBox(height: 12),
+                        OutlinedButton.icon(
+                          onPressed: null,
+                          icon: const Icon(Icons.map_outlined),
+                          label: const Text('Pick on Map'),
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 48),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Or enter coordinates manually',
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: const Color(0xFF6B7280)),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: AppTextField(
+                                controller: _latitudeController,
+                                label: 'LATITUDE',
+                                hintText: 'e.g. 40.7128',
+                                prefixIcon: Icons.my_location_outlined,
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                      decimal: true,
+                                    ),
+                                errorText: _errorTextFor('pickupLat'),
+                                validator: _validateLatitude,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: AppTextField(
+                                controller: _longitudeController,
+                                label: 'LONGITUDE',
+                                hintText: 'e.g. -74.0060',
+                                prefixIcon: Icons.my_location_outlined,
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                      decimal: true,
+                                    ),
+                                errorText: _errorTextFor('pickupLng'),
+                                validator: _validateLongitude,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Find this via Google Maps → long-press a point → copy coordinates.',
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: const Color(0xFF6B7280)),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Material type card
+                  _Card(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const _SectionHeader(title: 'MATERIAL TYPE *'),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: PickupMaterialType.values.map((type) {
+                            final isSelected = _selectedMaterialTypes.contains(
+                              type,
+                            );
+                            return FilterChip(
+                              label: Text(type.label),
+                              avatar: Icon(type.icon, size: 18),
+                              selected: isSelected,
+                              onSelected: (selected) {
+                                setState(() {
+                                  if (selected) {
+                                    _selectedMaterialTypes.add(type);
+                                  } else {
+                                    _selectedMaterialTypes.remove(type);
+                                  }
+                                });
+                              },
+                              backgroundColor:
+                                  tokens.filterChipTheme.backgroundColor,
+                              selectedColor:
+                                  tokens.filterChipTheme.selectedColor,
+                              disabledColor:
+                                  tokens.filterChipTheme.disabledColor,
+                              padding: tokens.filterChipTheme.padding,
+                              labelStyle: isSelected
+                                  ? tokens.filterChipTheme.secondaryLabelStyle
+                                  : tokens.filterChipTheme.labelStyle,
+                              side: tokens.filterChipTheme.side,
+                            );
+                          }).toList(),
+                        ),
+                        if (_triedSubmit && _selectedMaterialTypes.isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              'Select at least one material type',
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: const Color(0xFFB91C1C)),
+                            ),
+                          ),
+                        if (_errorTextFor('materialTypes') != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              _errorTextFor('materialTypes')!,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: const Color(0xFFB91C1C)),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Schedule card
+                  _Card(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const _SectionHeader(title: 'SCHEDULED TIME'),
+                        const SizedBox(height: 12),
+                        GestureDetector(
+                          onTap: () async {
+                            final date = await showDatePicker(
+                              context: context,
+                              initialDate: _scheduledTime ?? DateTime.now(),
+                              firstDate: DateTime.now(),
+                              lastDate: DateTime.now().add(
+                                const Duration(days: 365),
+                              ),
+                            );
+                            if (date != null && context.mounted) {
+                              final time = await showTimePicker(
+                                context: context,
+                                initialTime: TimeOfDay.fromDateTime(
+                                  _scheduledTime ?? DateTime.now(),
+                                ),
+                              );
+                              if (time != null) {
+                                setState(() {
+                                  _scheduledTime = DateTime(
+                                    date.year,
+                                    date.month,
+                                    date.day,
+                                    time.hour,
+                                    time.minute,
+                                  );
+                                });
+                              }
+                            }
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: _errorTextFor('scheduledTime') != null
+                                    ? tokens.errorBannerBackgroundColor
+                                    : const Color(0xFFD1D5DB),
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.calendar_today_outlined,
+                                  color: Color(0xFF6B7280),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        _scheduledTime != null
+                                            ? DateFormat.yMMMd()
+                                                  .add_jm()
+                                                  .format(_scheduledTime!)
+                                            : 'Tap to select date and time',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.copyWith(
+                                              color: _scheduledTime != null
+                                                  ? const Color(0xFF0F172A)
+                                                  : const Color(0xFF9CA3AF),
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                if (_scheduledTime != null)
+                                  IconButton(
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                    icon: const Icon(
+                                      Icons.close,
+                                      color: Color(0xFF6B7280),
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _scheduledTime = null;
+                                      });
+                                    },
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        if (_errorTextFor('scheduledTime') != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              _errorTextFor('scheduledTime')!,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: const Color(0xFFB91C1C)),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Weight card
+                  _Card(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const _SectionHeader(title: 'ESTIMATED WEIGHT'),
+                        const SizedBox(height: 12),
+                        AppTextField(
+                          controller: _estimatedWeightController,
+                          label: 'WEIGHT',
+                          hintText: 'e.g. 5.5',
+                          prefixIcon: Icons.scale_outlined,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          suffixText: 'kg',
+                          errorText: _errorTextFor('estimatedWeight'),
+                          validator: _validateWeight,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Submit button
+                  _PrimaryButton(
+                    text: 'Request Pickup',
+                    isLoading:
+                        pickupsState.createState.status ==
+                        RequestStatus.loading,
+                    onPressed:
+                        pickupsState.createState.status == RequestStatus.loading
+                        ? null
+                        : _submit,
+                  ),
+                ],
+              ),
             ),
           ),
         );
       },
+    );
+  }
+}
+
+class _Card extends StatelessWidget {
+  const _Card({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: child,
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 4,
+          height: 16,
+          decoration: BoxDecoration(
+            color: AppTheme.lightTokens.primaryColor,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+            color: const Color(0xFF6B7280),
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1.1,
+          ),
+        ),
+      ],
     );
   }
 }

@@ -16,6 +16,7 @@ class AppTextField extends StatelessWidget {
     this.errorText,
     this.suffixIcon,
     this.suffixText,
+    this.validator,
   });
 
   final TextEditingController controller;
@@ -29,6 +30,7 @@ class AppTextField extends StatelessWidget {
   final String? errorText;
   final Widget? suffixIcon;
   final String? suffixText;
+  final String? Function(String?)? validator;
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +45,7 @@ class AppTextField extends StatelessWidget {
       textInputAction: textInputAction,
       obscureText: obscureText,
       onFieldSubmitted: onFieldSubmitted,
+      validator: validator,
       style: const TextStyle(
         color: Color(0xFF111827),
         fontWeight: FontWeight.w500,

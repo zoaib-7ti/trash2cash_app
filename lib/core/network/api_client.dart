@@ -226,7 +226,7 @@ class ApiClient {
     required double pickupLat,
     required double pickupLng,
     String? scheduledTimeIso,
-    String? materialType,
+    required List<String> materialTypes,
     double? estimatedWeight,
   }) async {
     final formData = FormData.fromMap(<String, dynamic>{
@@ -239,8 +239,8 @@ class ApiClient {
     if (scheduledTimeIso != null && scheduledTimeIso.isNotEmpty) {
       formData.fields.add(MapEntry('scheduledTime', scheduledTimeIso));
     }
-    if (materialType != null && materialType.isNotEmpty) {
-      formData.fields.add(MapEntry('materialType', materialType));
+    if (materialTypes.isNotEmpty) {
+      formData.fields.add(MapEntry('materialTypes', materialTypes.join(',')));
     }
     if (estimatedWeight != null) {
       formData.fields.add(
