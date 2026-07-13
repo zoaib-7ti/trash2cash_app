@@ -74,9 +74,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           appBar: AppBar(
             title: Text(
               _isEditMode ? 'Edit Profile' : 'Profile',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             centerTitle: false,
             backgroundColor: Colors.white,
@@ -202,9 +202,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 user.name,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: const Color(0xFF111827),
-                    ),
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF111827),
+                ),
               ),
               const SizedBox(height: 8),
               Wrap(
@@ -220,12 +220,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   if (profile != null)
                     _PillBadge(
                       text: profile.availabilityStatus.apiValue,
-                      backgroundColor:
-                          _availabilityColors(profile.availabilityStatus)
-                              .background,
-                      foregroundColor:
-                          _availabilityColors(profile.availabilityStatus)
-                              .foreground,
+                      backgroundColor: _availabilityColors(
+                        profile.availabilityStatus,
+                      ).background,
+                      foregroundColor: _availabilityColors(
+                        profile.availabilityStatus,
+                      ).foreground,
                     ),
                 ],
               ),
@@ -262,21 +262,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       Text(
                         'ACTIVE VEHICLE',
-                        style:
-                            Theme.of(context).textTheme.labelSmall?.copyWith(
-                                  letterSpacing: 1.2,
-                                  color: const Color(0xFF16A34A),
-                                  fontWeight: FontWeight.w800,
-                                ),
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          letterSpacing: 1.2,
+                          color: const Color(0xFF16A34A),
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         '${profile.vehicleType ?? 'Not specified'}${profile.vehicleType == null ? '' : ' (Medium)'}',
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  color: const Color(0xFF111827),
-                                ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF111827),
+                            ),
                       ),
                     ],
                   ),
@@ -295,9 +294,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Text(
                     'LP-1202',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: const Color(0xFF16A34A),
-                          fontWeight: FontWeight.w800,
-                        ),
+                      color: const Color(0xFF16A34A),
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
               ],
@@ -429,9 +428,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 user.name,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: const Color(0xFF111827),
-                    ),
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF111827),
+                ),
               ),
             ],
           ),
@@ -581,8 +580,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       name: trimmedName,
       phone: trimmedPhone,
       vehicleType: user.role == UserRole.collector ? vehicleType : null,
-      availabilityStatus:
-          user.role == UserRole.collector ? availabilityStatus : null,
+      availabilityStatus: user.role == UserRole.collector
+          ? availabilityStatus
+          : null,
     );
 
     if (!mounted || !success) {
@@ -742,36 +742,24 @@ class _CollectorSettingsCard extends StatelessWidget {
               Text(
                 'COLLECTOR SETTINGS',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      letterSpacing: 1.2,
-                      color: const Color(0xFF15803D),
-                      fontWeight: FontWeight.w800,
-                    ),
+                  letterSpacing: 1.2,
+                  color: const Color(0xFF15803D),
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 14),
-          _FieldLabel(text: 'VEHICLE TYPE'),
-          const SizedBox(height: 8),
-          DropdownButtonFormField<String>(
-            initialValue: vehicleTypeController.text.isEmpty
-                ? null
-                : vehicleTypeController.text,
-            onChanged: enabled
-                ? (value) {
-                    vehicleTypeController.text = value ?? '';
-                  }
-                : null,
-            decoration: _inputDecoration(
-              hintText: 'Select vehicle type',
+          IgnorePointer(
+            ignoring: !enabled,
+            child: AppTextField(
+              controller: vehicleTypeController,
+              label: 'VEHICLE TYPE',
+              hintText: 'e.g. Motorbike',
               prefixIcon: Icons.local_shipping_outlined,
+              textInputAction: TextInputAction.next,
               errorText: vehicleTypeErrorText,
             ),
-            items: const [
-              DropdownMenuItem(value: 'Bike', child: Text('Bike')),
-              DropdownMenuItem(value: 'Motorbike', child: Text('Motorbike')),
-              DropdownMenuItem(value: 'Pickup Van', child: Text('Pickup Van')),
-              DropdownMenuItem(value: 'Truck', child: Text('Truck')),
-            ],
           ),
           const SizedBox(height: 14),
           _FieldLabel(text: 'AVAILABILITY STATUS'),
@@ -839,10 +827,9 @@ class _AvailabilitySegmentedControl extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             errorText!,
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(color: const Color(0xFFB91C1C)),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: const Color(0xFFB91C1C)),
           ),
         ],
       ],
@@ -888,11 +875,9 @@ class _SegmentButton extends StatelessWidget {
                 label,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: selected
-                          ? Colors.white
-                          : const Color(0xFF4B5563),
-                      fontWeight: FontWeight.w700,
-                    ),
+                  color: selected ? Colors.white : const Color(0xFF4B5563),
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ],
@@ -927,9 +912,9 @@ class _PrimaryButton extends StatelessWidget {
           shape: const StadiumBorder(),
           padding: const EdgeInsets.symmetric(vertical: 16),
           textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFF0F172A),
-              ),
+            fontWeight: FontWeight.w800,
+            color: const Color(0xFF0F172A),
+          ),
         ),
         child: isLoading
             ? const SizedBox(
@@ -964,24 +949,12 @@ class _FieldLabel extends StatelessWidget {
     return Text(
       text,
       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            letterSpacing: 1.2,
-            color: const Color(0xFF111827),
-            fontWeight: FontWeight.w800,
-          ),
+        letterSpacing: 1.2,
+        color: const Color(0xFF111827),
+        fontWeight: FontWeight.w800,
+      ),
     );
   }
-}
-
-InputDecoration _inputDecoration({
-  required String hintText,
-  required IconData prefixIcon,
-  String? errorText,
-}) {
-  return InputDecoration(
-    hintText: hintText,
-    prefixIcon: Icon(prefixIcon, color: const Color(0xFF6B7280)),
-    errorText: errorText,
-  );
 }
 
 class _AvatarBadge extends StatelessWidget {
@@ -1037,9 +1010,9 @@ class _PillBadge extends StatelessWidget {
       child: Text(
         text,
         style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: foregroundColor,
-              fontWeight: FontWeight.w800,
-            ),
+          color: foregroundColor,
+          fontWeight: FontWeight.w800,
+        ),
       ),
     );
   }
@@ -1098,18 +1071,18 @@ class _InfoRow extends StatelessWidget {
                 Text(
                   label,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        letterSpacing: 1.1,
-                        color: const Color(0xFF6B7280),
-                        fontWeight: FontWeight.w800,
-                      ),
+                    letterSpacing: 1.1,
+                    color: const Color(0xFF6B7280),
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   value,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: const Color(0xFF111827),
-                        fontWeight: FontWeight.w800,
-                      ),
+                    color: const Color(0xFF111827),
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ],
             ),
@@ -1135,10 +1108,10 @@ class _SectionHeader extends StatelessWidget {
         Text(
           label,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                letterSpacing: 1.3,
-                color: const Color(0xFF6B7280),
-                fontWeight: FontWeight.w800,
-              ),
+            letterSpacing: 1.3,
+            color: const Color(0xFF6B7280),
+            fontWeight: FontWeight.w800,
+          ),
         ),
       ],
     );
@@ -1183,17 +1156,17 @@ class _StatCard extends StatelessWidget {
           Text(
             value,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: const Color(0xFF111827),
-                  fontWeight: FontWeight.w800,
-                ),
+              color: const Color(0xFF111827),
+              fontWeight: FontWeight.w800,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
             label,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: const Color(0xFF6B7280),
-                  fontWeight: FontWeight.w600,
-                ),
+              color: const Color(0xFF6B7280),
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
@@ -1223,9 +1196,9 @@ class _PreferencesRow extends StatelessWidget {
             child: Text(
               'App Preferences',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: const Color(0xFF111827),
-                    fontWeight: FontWeight.w700,
-                  ),
+                color: const Color(0xFF111827),
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
           TextButton(
@@ -1293,16 +1266,16 @@ class _LogoutButton extends StatelessWidget {
                     Text(
                       isLoading ? 'Logging out...' : 'Log out',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            color: const Color(0xFF111827),
-                            fontWeight: FontWeight.w800,
-                          ),
+                        color: const Color(0xFF111827),
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       'Sign out of your account on this device',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: const Color(0xFF6B7280),
-                          ),
+                        color: const Color(0xFF6B7280),
+                      ),
                     ),
                   ],
                 ),
