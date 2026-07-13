@@ -8,6 +8,9 @@ import '../../features/auth/screens/profile_screen.dart';
 import '../../features/auth/screens/register_screen.dart';
 import '../../features/auth/state/auth_state.dart';
 import '../../features/home/screens/household_shell_screen.dart';
+import '../../features/home/screens/collector_shell_screen.dart';
+import '../../features/jobs/screens/job_details_screen.dart';
+import '../../features/jobs/screens/complete_job_screen.dart';
 import '../../features/pickups/screens/create_pickup_screen.dart';
 import '../../features/pickups/screens/edit_pickup_screen.dart';
 import '../../features/pickups/screens/pickup_detail_screen.dart';
@@ -75,10 +78,9 @@ class _AppRouterState extends State<AppRouter> {
         '/pickups/create': (_) => const CreatePickupScreen(),
         '/pickups/detail': (_) => const PickupDetailScreen(),
         '/pickups/edit': (_) => const EditPickupScreen(),
-        '/collector-home': (_) => const _HomePlaceholderPage(
-          title: 'Collector Home',
-          subtitle: 'Collector dashboard placeholder.',
-        ),
+        '/collector-home': (_) => const CollectorShellScreen(),
+        '/jobs/detail': (_) => const JobDetailsScreen(),
+        '/jobs/complete': (_) => const CompleteJobScreen(),
       },
     );
   }
@@ -202,40 +204,3 @@ class _StartupGateState extends State<_StartupGate> {
   }
 }
 
-class _HomePlaceholderPage extends StatelessWidget {
-  const _HomePlaceholderPage({required this.title, required this.subtitle});
-
-  final String title;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(title, style: Theme.of(context).textTheme.headlineSmall),
-              const SizedBox(height: 12),
-              Text(
-                subtitle,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 16),
-              FilledButton.icon(
-                onPressed: () {
-                  Navigator.of(context).pushNamed('/profile');
-                },
-                icon: const Icon(Icons.person),
-                label: const Text('Open Profile'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

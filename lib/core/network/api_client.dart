@@ -421,6 +421,212 @@ class ApiClient {
     await delete(ApiConstants.pickupByIdPath(id));
   }
 
+  Future<PaginatedResponseModel<PickupRequestModel>> getJobFeed({
+    int page = 1,
+    int limit = 10,
+  }) async {
+    final queryParameters = <String, dynamic>{'page': page, 'limit': limit};
+    final response = await get<Map<String, dynamic>>(
+      ApiConstants.jobsFeedPath,
+      queryParameters: queryParameters,
+    );
+    final responseData = response.data ?? <String, dynamic>{};
+    final dataSection = responseData['data'];
+
+    Map<String, dynamic>? normalizedData;
+    if (dataSection is Map<String, dynamic>) {
+      normalizedData = dataSection;
+    } else if (dataSection is Map) {
+      normalizedData = dataSection.map(
+        (key, value) => MapEntry(key.toString(), value),
+      );
+    }
+
+    if (normalizedData == null) {
+      throw ApiException.fromMessage(
+        statusCode: response.statusCode,
+        message: 'Get job feed response was missing data payload',
+      );
+    }
+
+    return PaginatedResponseModel.fromJson(
+      normalizedData,
+      (json) => PickupRequestModel.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  Future<PickupRequestModel> getJobById(String id) async {
+    final response = await get<Map<String, dynamic>>(
+      ApiConstants.jobByIdPath(id),
+    );
+    final responseData = response.data ?? <String, dynamic>{};
+    final dataSection = responseData['data'];
+
+    Map<String, dynamic>? jobJson;
+    if (dataSection is Map<String, dynamic>) {
+      final jobValue = dataSection['job'];
+      if (jobValue is Map<String, dynamic>) {
+        jobJson = jobValue;
+      } else if (jobValue is Map) {
+        jobJson = jobValue.map(
+          (key, value) => MapEntry(key.toString(), value),
+        );
+      }
+    } else if (dataSection is Map) {
+      final normalizedData = dataSection.map(
+        (key, value) => MapEntry(key.toString(), value),
+      );
+      final jobValue = normalizedData['job'];
+      if (jobValue is Map<String, dynamic>) {
+        jobJson = jobValue;
+      } else if (jobValue is Map) {
+        jobJson = jobValue.map(
+          (key, value) => MapEntry(key.toString(), value),
+        );
+      }
+    }
+
+    if (jobJson == null) {
+      throw ApiException.fromMessage(
+        statusCode: response.statusCode,
+        message: 'Get job response was missing the job payload',
+      );
+    }
+
+    return PickupRequestModel.fromJson(jobJson);
+  }
+
+  Future<PickupRequestModel> acceptJob(String id) async {
+    final response = await post<Map<String, dynamic>>(
+      ApiConstants.jobAcceptPath(id),
+    );
+    final responseData = response.data ?? <String, dynamic>{};
+    final dataSection = responseData['data'];
+
+    Map<String, dynamic>? jobJson;
+    if (dataSection is Map<String, dynamic>) {
+      final jobValue = dataSection['job'];
+      if (jobValue is Map<String, dynamic>) {
+        jobJson = jobValue;
+      } else if (jobValue is Map) {
+        jobJson = jobValue.map(
+          (key, value) => MapEntry(key.toString(), value),
+        );
+      }
+    } else if (dataSection is Map) {
+      final normalizedData = dataSection.map(
+        (key, value) => MapEntry(key.toString(), value),
+      );
+      final jobValue = normalizedData['job'];
+      if (jobValue is Map<String, dynamic>) {
+        jobJson = jobValue;
+      } else if (jobValue is Map) {
+        jobJson = jobValue.map(
+          (key, value) => MapEntry(key.toString(), value),
+        );
+      }
+    }
+
+    if (jobJson == null) {
+      throw ApiException.fromMessage(
+        statusCode: response.statusCode,
+        message: 'Accept job response was missing the job payload',
+      );
+    }
+
+    return PickupRequestModel.fromJson(jobJson);
+  }
+
+  Future<PaginatedResponseModel<PickupRequestModel>> getMyJobs({
+    String? status,
+    int page = 1,
+    int limit = 10,
+  }) async {
+    final queryParameters = <String, dynamic>{'page': page, 'limit': limit};
+    if (status != null && status.isNotEmpty) {
+      queryParameters['status'] = status;
+    }
+
+    final response = await get<Map<String, dynamic>>(
+      ApiConstants.jobsMyJobsPath,
+      queryParameters: queryParameters,
+    );
+    final responseData = response.data ?? <String, dynamic>{};
+    final dataSection = responseData['data'];
+
+    Map<String, dynamic>? normalizedData;
+    if (dataSection is Map<String, dynamic>) {
+      normalizedData = dataSection;
+    } else if (dataSection is Map) {
+      normalizedData = dataSection.map(
+        (key, value) => MapEntry(key.toString(), value),
+      );
+    }
+
+    if (normalizedData == null) {
+      throw ApiException.fromMessage(
+        statusCode: response.statusCode,
+        message: 'Get my jobs response was missing data payload',
+      );
+    }
+
+    return PaginatedResponseModel.fromJson(
+      normalizedData,
+      (json) => PickupRequestModel.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  Future<PickupRequestModel> updateJobStatus(
+    String id, {
+    required String status,
+    double? actualWeight,
+  }) async {
+    final body = <String, dynamic>{'status': status};
+    if (actualWeight != null) {
+      body['actualWeight'] = actualWeight;
+    }
+
+    final response = await put<Map<String, dynamic>>(
+      ApiConstants.jobStatusPath(id),
+      data: body,
+    );
+    final responseData = response.data ?? <String, dynamic>{};
+    final dataSection = responseData['data'];
+
+    Map<String, dynamic>? jobJson;
+    if (dataSection is Map<String, dynamic>) {
+      final jobValue = dataSection['job'];
+      if (jobValue is Map<String, dynamic>) {
+        jobJson = jobValue;
+      } else if (jobValue is Map) {
+        jobJson = jobValue.map(
+          (key, value) => MapEntry(key.toString(), value),
+        );
+      }
+    } else if (dataSection is Map) {
+      final normalizedData = dataSection.map(
+        (key, value) => MapEntry(key.toString(), value),
+      );
+      final jobValue = normalizedData['job'];
+      if (jobValue is Map<String, dynamic>) {
+        jobJson = jobValue;
+      } else if (jobValue is Map) {
+        jobJson = jobValue.map(
+          (key, value) => MapEntry(key.toString(), value),
+        );
+      }
+    }
+
+    if (jobJson == null) {
+      throw ApiException.fromMessage(
+        statusCode: response.statusCode,
+        message: 'Update job status response was missing the job payload',
+      );
+    }
+
+    return PickupRequestModel.fromJson(jobJson);
+  }
+
   Future<void> dispose() async {
     await _sessionExpiredController.close();
     _dio.close();

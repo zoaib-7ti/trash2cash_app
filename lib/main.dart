@@ -8,6 +8,7 @@ import 'core/routing/route_guard.dart';
 import 'core/storage/secure_storage_service.dart';
 import 'features/auth/state/auth_state.dart';
 import 'features/pickups/state/pickups_state.dart';
+import 'features/jobs/state/jobs_state.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +26,7 @@ void main() {
   );
 
   final pickupsState = PickupsState(apiClient: apiClient);
+  final jobsState = JobsState(apiClient: apiClient);
 
   final routeGuard = RouteGuard(
     secureStorageService: secureStorageService,
@@ -39,6 +41,7 @@ void main() {
         Provider<RouteGuard>.value(value: routeGuard),
         ChangeNotifierProvider<AuthState>.value(value: authState),
         ChangeNotifierProvider<PickupsState>.value(value: pickupsState),
+        ChangeNotifierProvider<JobsState>.value(value: jobsState),
       ],
       child: const Trash2CashApp(),
     ),

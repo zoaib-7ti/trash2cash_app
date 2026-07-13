@@ -38,4 +38,7 @@ class ApiConstants {
   static String pickupByIdPath(String id) => '$pickupsPath/$id';
   static const String jobsFeedPath = '/jobs/feed';
   static const String jobsMyJobsPath = '/jobs/my-jobs';
+  static String jobByIdPath(String id) => '/jobs/$id';
+  static String jobAcceptPath(String id) => '/jobs/$id/accept';
+  static String jobStatusPath(String id) => '/jobs/$id/status';
 }

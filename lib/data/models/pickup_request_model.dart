@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'collector_summary_model.dart';
+import 'household_summary_model.dart';
 
 enum PickupStatus { pending, accepted, inProgress, completed, cancelled }
 
@@ -129,6 +130,7 @@ class PickupRequestModel {
     required this.createdAt,
     required this.updatedAt,
     this.collector,
+    this.citizen,
   });
 
   final String id;
@@ -145,6 +147,7 @@ class PickupRequestModel {
   final DateTime createdAt;
   final DateTime updatedAt;
   final CollectorSummaryModel? collector;
+  final HouseholdSummaryModel? citizen;
 
   factory PickupRequestModel.fromJson(Map<String, dynamic> json) {
     final collectorJson = json['collector'];
@@ -155,8 +158,36 @@ class PickupRequestModel {
       } catch (_) {
         collector = null;
       }
+    } else if (collectorJson is Map) {
+      try {
+        collector = CollectorSummaryModel.fromJson(
+          Map<String, dynamic>.from(collectorJson),
+        );
+      } catch (_) {
+        collector = null;
+      }
     } else {
       collector = null;
+    }
+
+    final citizenJson = json['citizen'];
+    HouseholdSummaryModel? citizen;
+    if (citizenJson is Map<String, dynamic>) {
+      try {
+        citizen = HouseholdSummaryModel.fromJson(citizenJson);
+      } catch (_) {
+        citizen = null;
+      }
+    } else if (citizenJson is Map) {
+      try {
+        citizen = HouseholdSummaryModel.fromJson(
+          Map<String, dynamic>.from(citizenJson),
+        );
+      } catch (_) {
+        citizen = null;
+      }
+    } else {
+      citizen = null;
     }
     // Check both materialTypes (new field) and materialType (legacy field for backward compatibility)
     List<PickupMaterialType> materialTypes =
@@ -198,6 +229,7 @@ class PickupRequestModel {
       createdAt: DateTime.parse(json['createdAt']?.toString() ?? ''),
       updatedAt: DateTime.parse(json['updatedAt']?.toString() ?? ''),
       collector: collector,
+      citizen: citizen,
     );
   }
 
@@ -216,6 +248,7 @@ class PickupRequestModel {
       'scheduledTime': scheduledTime?.toIso8601String(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
+      'citizen': citizen?.toJson(),
     };
   }
 
