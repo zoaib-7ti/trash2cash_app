@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 
 import '../../data/models/user_model.dart';
 import '../../data/models/pickup_request_model.dart';
@@ -19,14 +20,34 @@ class ApiClient {
          BaseOptions(
            baseUrl: apiBaseUrl,
            headers: const <String, dynamic>{'Content-Type': 'application/json'},
+           connectTimeout: const Duration(seconds: 10),
+           sendTimeout: const Duration(seconds: 15),
+           receiveTimeout: const Duration(seconds: 15),
          ),
        ),
        _refreshDio = Dio(
          BaseOptions(
            baseUrl: apiBaseUrl,
            headers: const <String, dynamic>{'Content-Type': 'application/json'},
+           connectTimeout: const Duration(seconds: 10),
+           sendTimeout: const Duration(seconds: 15),
+           receiveTimeout: const Duration(seconds: 15),
          ),
        ) {
+    _dio.httpClientAdapter = IOHttpClientAdapter(
+      createHttpClient: () {
+        final client = HttpClient();
+        client.idleTimeout = const Duration(seconds: 4);
+        return client;
+      },
+    );
+    _refreshDio.httpClientAdapter = IOHttpClientAdapter(
+      createHttpClient: () {
+        final client = HttpClient();
+        client.idleTimeout = const Duration(seconds: 4);
+        return client;
+      },
+    );
     _dio.interceptors.add(
       InterceptorsWrapper(onRequest: _onRequest, onError: _onError),
     );
