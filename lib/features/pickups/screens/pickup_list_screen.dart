@@ -152,7 +152,8 @@ class _PickupListScreenState extends State<PickupListScreen> {
                                 padding: const EdgeInsets.only(right: 8),
                                 child: _FilterChip(
                                   label: label,
-                                  selected: pickupsState.activeStatusFilter == status,
+                                  selected:
+                                      pickupsState.activeStatusFilter == status,
                                   onSelected: (_) => pickupsState.loadPickups(
                                     reset: true,
                                     statusFilter: status,
@@ -406,8 +407,8 @@ class _PickupCard extends StatelessWidget {
                     pickup.materialTypes.isEmpty
                         ? 'General waste'
                         : pickup.materialTypes.length <= 2
-                            ? pickup.materialTypes.map((m) => m.label).join(', ')
-                            : '${pickup.materialTypes.take(2).map((m) => m.label).join(', ')} +${pickup.materialTypes.length - 2} more',
+                        ? pickup.materialTypes.map((m) => m.label).join(', ')
+                        : '${pickup.materialTypes.take(2).map((m) => m.label).join(', ')} +${pickup.materialTypes.length - 2} more',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: const Color(0xFF0F172A),

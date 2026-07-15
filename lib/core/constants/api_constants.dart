@@ -7,16 +7,20 @@ class ApiConstants {
   // Must match the backend's actual running port in .env.
   // 5000 matches the current backend README, but update this if the server runs elsewhere.
 
+  static const String webHost = 'http://localhost';
   static const String androidEmulatorHost = 'http://10.0.2.2';
 
   // TODO: set this to your machine's LAN IP before testing on a physical device or iOS simulator.
-  static const String lanHost = 'http://192.168.1.14';
+  static const String lanHost = 'http://localhost';
 
   // Set to true when using an Android emulator (uses 10.0.2.2 to access host localhost)
   // Set to false when using a physical device (uses lanHost)
-  static const bool preferAndroidEmulatorHost = false;
+  static const bool preferAndroidEmulatorHost = true;
 
   static String get host {
+    if (kIsWeb) {
+      return webHost;
+    }
     final shouldUseAndroidEmulatorHost =
         defaultTargetPlatform == TargetPlatform.android &&
         preferAndroidEmulatorHost;
